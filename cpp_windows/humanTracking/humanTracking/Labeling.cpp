@@ -15,7 +15,7 @@ using namespace lab;
 //Parameter param;
 
 std::vector<cv::Vec3d> bestInliers;
-void Labeling::labeling(cv::Mat depth,int step)
+void Labeling::labeling(cv::Mat depth, int step)
 {
 	//KinectSensor kinect;
 	id = 1;
@@ -36,13 +36,19 @@ void Labeling::labeling(cv::Mat depth,int step)
 			if (depth.at<short>(y, x) != 0 && table.at<short>(y, x) == INIT){
 				std::vector<Buf> pointBuf;//
 				Labeling::labelInf labelBuf = { 0 };//ラベリング結果中間結果
+
+				double maxw = x, minw = x, maxh = y, minh = y;
 				pointBuf.push_back(getBufInf(x,y));	//点の追加
+
 				while (!pointBuf.empty()){//
 					double ty = (pointBuf.back()).y, tx = (pointBuf.back()).x;
 					pointBuf.pop_back();
 					table.at<short>(ty,tx) = id;
 					int d = depth.at<short>(ty, tx);
-					labelBuf = getlabelInf(labelBuf.x + x, labelBuf.y + ty, labelBuf.d + d, labelBuf.size+1, id);//
+
+					if (tx > maxw)maxw = tx; if (tx < minw)minw = tx;
+					if (ty > maxh)maxh = ty; if (ty < minh)maxh = ty;
+					labelBuf = getlabelInf(labelBuf.x + x, labelBuf.y + ty, labelBuf.d + d, maxw - minw, maxh - minh , labelBuf.size+1, id);//
 
 					for (int i = 0; i < 4; i++) {
 						double ret = getNotLabelDepth(depth, table, tx + X[i], ty + Y[i]);//4傍点
@@ -51,12 +57,15 @@ void Labeling::labeling(cv::Mat depth,int step)
 						}
 					}
 				}
-				if (labelBuf.size > MIN_SIZE && labelBuf.size < MAX_SIZE) {
-					//ラベリング成功の場合
-					labelBuf = getlabelInf(labelBuf.x / labelBuf.size, labelBuf.y / labelBuf.size, labelBuf.d / labelBuf.size, labelBuf.size, id);
-					results.push_back(labelBuf);//最終結果をresultに入れる
-					isId.insert(id);
-					id += 1;//idを更新
+				//
+				if (labelBuf.size > MIN_SIZE && labelBuf.size < MAX_SIZE //){
+					&& labelBuf.width > 0 && labelBuf.height > 0 ){
+					//labelBuf.width > MIN_WIDTH && labelBuf.width < MAX_WIDTH &&
+					//labelBuf.height > MIN_HEIGHT && labelBuf.height < MAX_HEIGHT) {
+						labelBuf = getlabelInf(labelBuf.x / labelBuf.size, labelBuf.y / labelBuf.size, labelBuf.d / labelBuf.size, labelBuf.width, labelBuf.height, labelBuf.size, id);
+						results.push_back(labelBuf);//最終結果をresultに入れる
+						isId.insert(id);
+						id += 1;//idを更新
 				}
 			}
 		}
