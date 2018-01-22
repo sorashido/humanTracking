@@ -59,9 +59,8 @@ void Labeling::labeling(cv::Mat depth, int step)
 				}
 				//
 				if (labelBuf.size > MIN_SIZE && labelBuf.size < MAX_SIZE //){
-					&& labelBuf.width > 0 && labelBuf.height > 0 ){
-					//labelBuf.width > MIN_WIDTH && labelBuf.width < MAX_WIDTH &&
-					//labelBuf.height > MIN_HEIGHT && labelBuf.height < MAX_HEIGHT) {
+					&& labelBuf.width > MIN_WIDTH && labelBuf.width < MAX_WIDTH
+					&& labelBuf.height > MIN_HEIGHT && labelBuf.height < MAX_HEIGHT) {
 						labelBuf = getlabelInf(labelBuf.x / labelBuf.size, labelBuf.y / labelBuf.size, labelBuf.d / labelBuf.size, labelBuf.width, labelBuf.height, labelBuf.size, id);
 						results.push_back(labelBuf);//最終結果をresultに入れる
 						isId.insert(id);

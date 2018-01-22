@@ -178,7 +178,7 @@ void RSSDKConvert(const wchar_t* filename)
 		}
 
 		for (auto r : label.results) {
-			cv::rectangle(paintMat, Point(r.x, r.y), Point(r.x + r.width, r.y + r.height), Scalar(0, 255, 0), 2);
+			cv::rectangle(paintMat, Point(r.x - +r.width/2, r.y - r.height/2), Point(r.x + r.width/2, r.y + r.height/2), Scalar(0, 255, 0), 2);
 		}
 
 		cv::imshow(WINDOWNAME, paintMat);
