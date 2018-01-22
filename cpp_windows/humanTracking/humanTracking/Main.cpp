@@ -1,7 +1,9 @@
-﻿#include "pxcsensemanager.h"
-#include <iostream>
+﻿#include <iostream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include "pxcsensemanager.h"
+#include "Labeling.hpp"
+#include "DepthSensor.hpp"
 
 using namespace std;
 using namespace cv;
@@ -111,7 +113,7 @@ void RSSDKConvert(const wchar_t* filename)
 	PXCImage::ImageData depth_data;
 	PXCImage::ImageInfo depth_information;
 
-	Mat paintMat = Mat(480, 640, CV_8UC1);
+	//Mat paintMat = Mat(480, 640, CV_8UC1);
 
 	// Set realtime=true and pause=false
 	sm->QueryCaptureManager()->SetRealtime(false);
@@ -127,12 +129,15 @@ void RSSDKConvert(const wchar_t* filename)
 	cv::namedWindow(WINDOWNAME);				//	
 	cv::setMouseCallback(WINDOWNAME, onMouse);	//
 
-	cv::FileStorage fs("test.xml", cv::FileStorage::WRITE);
-	if (!fs.isOpened()) {
-		std::cout << "File can not be opened." << std::endl;
-	}
+	//cv::FileStorage fs("test.xml", cv::FileStorage::WRITE);
+	//if (!fs.isOpened()) {
+	//	std::cout << "File can not be opened." << std::endl;
+	//}
+	Labeling label;		//ラベリング
 
 	// Streaming loop
+	cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);				//depthの取得データ
+
 	for (int i = 0; i < nframes; i += 1) {
 
 		// Set to work on every 3rd frame of data
@@ -145,14 +150,38 @@ void RSSDKConvert(const wchar_t* filename)
 
 		// Retrieve the sample and work on it. The image is in sample->color.
 		PXCCapture::Sample* sample = sm->QuerySample();
-
-		Mat depthMat, depthTmp;
-		//ConvertPXCImageToOpenCVMat(sample->color, &colorMat);
 		ConvertPXCImageToOpenCVMat(sample->depth, &depthMat);
-		depthMat.convertTo(depthTmp, CV_8UC1, 255.0f / 4000.0f, 0);
+		cv::resize(depthMat, depthMat, cv::Size(), 2.0, 2.0);
+
+		// tracking
+		label.labeling(depthMat, 1);
+		
+		// draw mat
+		Mat depthTmp, paintMat;
+		depthMat.convertTo(depthTmp, CV_8U, 255.0f / 8000.0f, 0);
 		cv::cvtColor(depthTmp, paintMat, CV_GRAY2BGR);
 
-		cv::imshow(WINDOWNAME, depthMat);
+		char str[64];
+		sprintf_s(str, "%4d", depthMat.at<short>(m_y, m_x));
+		cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(255, 0, 0), 2, CV_AA);
+
+		for (int y = 0; y < DEPTH_HEIGHT; y++) {
+			for (int x = 0; x < DEPTH_WIDTH; x++) {
+				int num = label.table.at<short>(y, x);
+				if (num != 0 && num != INIT && label.isId.find(num) != label.isId.end()) {
+					//std::cout << num << ",";
+					paintMat.at<cv::Vec3b>(y, x)[0] = 255; //255 * (num % 2);
+					paintMat.at<cv::Vec3b>(y, x)[1] = 0; //(255 / 4)*(num % 4);
+					paintMat.at<cv::Vec3b>(y, x)[2] = 0; //(255 / 2)*(num % 3);
+				}
+			}
+		}
+
+		for (auto r : label.results) {
+			cv::rectangle(paintMat, Point(r.x, r.y), Point(r.x + r.size/2, r.y + r.size / 2), Scalar(0, 255, 0), 2);
+		}
+
+		cv::imshow(WINDOWNAME, paintMat);
 		int key = cv::waitKey(1);
 		if (key == 27)
 			break;
@@ -161,7 +190,7 @@ void RSSDKConvert(const wchar_t* filename)
 		sm->ReleaseFrame();
 	}
 
-	fs.release();
+	//fs.release();
 	sm->Release();
 }
 

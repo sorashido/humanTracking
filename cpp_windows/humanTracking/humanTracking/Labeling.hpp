@@ -7,9 +7,9 @@
 namespace lab {
 	const int INIT = 1000;
 	const int SERCH_NUM = 4;
-	const int MIN_SIZE = 20;
-	const int MAX_SIZE = 500;
-	const int RELATION_DEPTH = 40;
+	const int MIN_SIZE = 100;
+	const int MAX_SIZE = 200;
+	const int RELATION_DEPTH = 50;
 	const char X[SERCH_NUM] = { -1, 1, 0, 0 };
 	const char Y[SERCH_NUM] = { 0, 0, -1, 1 };
 }
@@ -28,9 +28,10 @@ public:
 
 	std::vector<labelInf> results;//ラベリングの結果詳細
 	cv::Mat table;	//ラベリング結果のテーブル
+	std::set<int>isId;
 
 	void labeling(cv::Mat depth, int step);//ラベリング
-	void drawResult(const std::string&winname);//描画
+	//void drawResult(const std::string&winname);//描画
 
 private:
 	int id;//ラベリングの数
