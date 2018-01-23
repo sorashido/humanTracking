@@ -156,6 +156,8 @@ void RSSDKConvert(const wchar_t* filename)
 		// tracking
 		label.labeling(depthMat, 1);
 		
+
+
 		// draw mat
 		Mat depthTmp, paintMat;
 		depthMat.convertTo(depthTmp, CV_8U, 255.0f / 8000.0f, 0);
@@ -170,13 +172,12 @@ void RSSDKConvert(const wchar_t* filename)
 				int num = label.table.at<short>(y, x);
 				if (num != 0 && num != INIT && label.isId.find(num) != label.isId.end()) {
 					//std::cout << num << ",";
-					paintMat.at<cv::Vec3b>(y, x)[0] = 255; //255 * (num % 2);
-					paintMat.at<cv::Vec3b>(y, x)[1] = 0; //(255 / 4)*(num % 4);
-					paintMat.at<cv::Vec3b>(y, x)[2] = 0; //(255 / 2)*(num % 3);
+					paintMat.at<cv::Vec3b>(y, x)[0] = 255 * (num % 2);
+					paintMat.at<cv::Vec3b>(y, x)[1] = (255 / 4)*(num % 4);
+					paintMat.at<cv::Vec3b>(y, x)[2] = (255 / 2)*(num % 3);
 				}
 			}
 		}
-
 		for (auto r : label.results) {
 			cv::rectangle(paintMat, Point(r.x - +r.width/2, r.y - r.height/2), Point(r.x + r.width/2, r.y + r.height/2), Scalar(0, 255, 0), 2);
 		}
@@ -196,7 +197,7 @@ void RSSDKConvert(const wchar_t* filename)
 
 int main()
 {
-	RSSDKConvert(L"C:\\Users\\shiba\\Downloads\\No5_out2017-11-14 5-40-31.rssdk");
+	RSSDKConvert(L"C:\\Users\\itolab\\Downloads\\No6_out2017-11-07 5-44-46.rssdk");//No5_out2017-11-14 5-40-31.rssdk
 	//system("pause");
 	return 0;
 }

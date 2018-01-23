@@ -9,13 +9,13 @@ namespace lab {
 	const int SERCH_NUM = 4;
 
 	const int MIN_SIZE = 10;
-	const int MAX_SIZE = 10000000;
-	const int MIN_WIDTH = 50;
+	const int MAX_SIZE = 204800;
+	const int MIN_WIDTH = 0;
 	const int MAX_WIDTH = 6000;
-	const int MIN_HEIGHT = 50;
+	const int MIN_HEIGHT = 0;
 	const int MAX_HEIGHT = 6000;
 
-	const int RELATION_DEPTH = 500;
+	const int RELATION_DEPTH = 50;
 
 	const char X[SERCH_NUM] = { -1, 1, 0, 0 };
 	const char Y[SERCH_NUM] = { 0, 0, -1, 1 };
