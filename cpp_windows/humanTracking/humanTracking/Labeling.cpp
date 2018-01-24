@@ -10,7 +10,7 @@
 //#include "Global.hpp"
 //#include "KinectParam.hpp"
 
-using namespace lab;
+using namespace labelParam;
 
 //Parameter param;
 
@@ -50,7 +50,7 @@ void Labeling::labeling(cv::Mat depth, int step)
 					if (ty > maxh)maxh = ty; if (ty < minh)maxh = ty;
 					labelBuf = getlabelInf(labelBuf.x + x, labelBuf.y + ty, labelBuf.d + d, maxw - minw, maxh - minh , labelBuf.size+1, id);//
 
-					for (int i = 0; i < 4; i++) {
+					for (int i = 0; i < SERCH_NUM; i++) {
 						double ret = getNotLabelDepth(depth, table, tx + X[i], ty + Y[i]);//4傍点
 						if (abs(ret - d) < RELATION_DEPTH && table.at<short>(ty + Y[i], tx + X[i])==INIT && depth.at<short>(ty + Y[i], tx + X[i]) != 0) {//差分が近ければ一つのものとみなす
 							pointBuf.push_back(getBufInf(tx + X[i], ty + Y[i]));

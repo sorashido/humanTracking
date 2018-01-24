@@ -4,11 +4,11 @@
 #include <opencv2/core/core.hpp>
 
 // parameter
-namespace lab {
+namespace labelParam {
 	const int INIT = 1000;
-	const int SERCH_NUM = 4;
+	const int SERCH_NUM = 8;
 
-	const int MIN_SIZE = 10;
+	const int MIN_SIZE = 50;
 	const int MAX_SIZE = 204800;
 	const int MIN_WIDTH = 0;
 	const int MAX_WIDTH = 6000;
@@ -17,11 +17,16 @@ namespace lab {
 
 	const int RELATION_DEPTH = 50;
 
-	const char X[SERCH_NUM] = { -1, 1, 0, 0 };
-	const char Y[SERCH_NUM] = { 0, 0, -1, 1 };
+	//const char X_4[SERCH_NUM] = { -1, 1, 0, 0 };
+	//const char Y_4[SERCH_NUM] = { 0, 0, -1, 1 };
+	const char X[SERCH_NUM] = { -1, 0, 1, -1, 1, -1, 0, 1};
+	const char Y[SERCH_NUM] = { -1, -1, -1, 0, 0, 1, 1, 1};
+
+	//const char X[SERCH_NUM] = { -1, 0, 1, -1, 1, -1, 0, 1, -2, -1, 0, 1, 2, -2, 2, -2, 2, -2, 2, -2, -1, 0, 1, 2};
+	//const char Y[SERCH_NUM] = { -1, -1, -1, 0, 0, 1, 1, 1, -2, -2, -2, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 2, 2, 2};
 }
 
-using namespace lab;
+using namespace labelParam;
 
 class Labeling{
 public:

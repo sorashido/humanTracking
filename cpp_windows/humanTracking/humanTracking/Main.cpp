@@ -138,7 +138,8 @@ void RSSDKConvert(const wchar_t* filename)
 	// Streaming loop
 	cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);				//depthの取得データ
 
-	for (int i = 0; i < nframes; i += 1) {
+	// No.6 nframes = 1953147, init = 1000, best = 4500
+	for (int i = 4500; i < nframes; i += 1) {
 
 		// Set to work on every 3rd frame of data
 		sm->QueryCaptureManager()->SetFrameByIndex(i);
@@ -155,8 +156,6 @@ void RSSDKConvert(const wchar_t* filename)
 
 		// tracking
 		label.labeling(depthMat, 1);
-		
-
 
 		// draw mat
 		Mat depthTmp, paintMat;
@@ -164,27 +163,21 @@ void RSSDKConvert(const wchar_t* filename)
 		cv::cvtColor(depthTmp, paintMat, CV_GRAY2BGR);
 
 		char str[64];
-		sprintf_s(str, "%4d", depthMat.at<short>(m_y, m_x));
-		cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(255, 0, 0), 2, CV_AA);
+		sprintf_s(str, "%4d", i);// , (int)r.size);
+		cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(244, 67, 57), 2, CV_AA);
 
-		for (int y = 0; y < DEPTH_HEIGHT; y++) {
-			for (int x = 0; x < DEPTH_WIDTH; x++) {
-				int num = label.table.at<short>(y, x);
-				if (num != 0 && num != INIT && label.isId.find(num) != label.isId.end()) {
-					//std::cout << num << ",";
-					paintMat.at<cv::Vec3b>(y, x)[0] = 255 * (num % 2);
-					paintMat.at<cv::Vec3b>(y, x)[1] = (255 / 4)*(num % 4);
-					paintMat.at<cv::Vec3b>(y, x)[2] = (255 / 2)*(num % 3);
-				}
-			}
-		}
 		for (auto r : label.results) {
-			cv::rectangle(paintMat, Point(r.x - +r.width/2, r.y - r.height/2), Point(r.x + r.width/2, r.y + r.height/2), Scalar(0, 255, 0), 2);
+			cv::rectangle(paintMat, Point(r.x - +r.width/2, r.y - r.height/2), Point(r.x + r.width/2, r.y + r.height/2), Scalar(136, 150, 0), 2);
+			sprintf_s(str, "%4d", r.id);// , (int)r.size);
+			cv::putText(paintMat, str, cv::Point(r.x, r.y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(54, 67, 244), 2, CV_AA);
 		}
+
+		sprintf_s(str, "%4d", depthMat.at<short>(m_y, m_x));
+		cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(7, 193, 255), 2, CV_AA);
 
 		cv::imshow(WINDOWNAME, paintMat);
 		int key = cv::waitKey(1);
-		if (key == 27)
+		if (key == 'q')
 			break;
 
 		// Resume processing the next frame
