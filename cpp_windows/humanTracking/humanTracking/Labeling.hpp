@@ -8,7 +8,7 @@ namespace labelParam {
 	const int INIT = 1000;
 	const int SERCH_NUM = 8;
 
-	const int MIN_SIZE = 50;
+	const int MIN_SIZE = 20;
 	const int MAX_SIZE = 204800;
 	const int MIN_WIDTH = 0;
 	const int MAX_WIDTH = 6000;

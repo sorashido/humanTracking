@@ -123,6 +123,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DepthSensor.cpp" />
     <ClCompile Include="Labeling.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>

@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <memory>
 #include "pxcsensemanager.h"
 #include "Labeling.hpp"
 #include "DepthSensor.hpp"
@@ -8,189 +9,62 @@
 using namespace std;
 using namespace cv;
 
-//#define DEBUG_LOG
-
 int m_x, m_y, m_event;
-
-void onMouse(int event, int x, int y, int flags, void *param = NULL)
-{
+void onMouse(int event, int x, int y, int flags, void *param = NULL){
 	m_event = event;
 	m_x = x;
 	m_y = y;
 }
 
-void ConvertPXCImageToOpenCVMat(PXCImage *inImg, Mat *outImg) {
-	int cvDataType;
-	int cvDataWidth;
+int main(){
+	//std::unique_ptr<DepthSensor> sensor(new DepthSensor(L"C:\\Users\\itolab\\Downloads\\No6_out2017-11-07 5-44-46.rssdk"));
+	DepthSensor sensor(L"C:\\Users\\itolab\\Downloads\\No6_out2017-11-07 5-44-46.rssdk");
+	Labeling label;
+	cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);
 
-
-	PXCImage::ImageData data;
-	inImg->AcquireAccess(PXCImage::ACCESS_READ, &data);
-	PXCImage::ImageInfo imgInfo = inImg->QueryInfo();
-
-	switch (data.format) {
-		/* STREAM_TYPE_COLOR */
-	case PXCImage::PIXEL_FORMAT_YUY2: /* YUY2 image  */
-#ifdef DEBUG_LOG
-		cout << "PXCImage Format not supported:PIXEL_FORMAT_YUY2" << endl;
-#endif
-		throw(0); // Not implemented
-	case PXCImage::PIXEL_FORMAT_NV12: /* NV12 image */
-
-#ifdef DEBUG_LOG
-		cout << "PXCImage Format not supported:PIXEL_FORMAT_NV12" << endl;
-#endif
-		throw(0); // Not implemented
-	case PXCImage::PIXEL_FORMAT_RGB32: /* BGRA layout on a little-endian machine */
-		cvDataType = CV_8UC4;
-		cvDataWidth = 4;
-		break;
-	case PXCImage::PIXEL_FORMAT_RGB24: /* BGR layout on a little-endian machine */
-		cvDataType = CV_8UC3;
-		cvDataWidth = 3;
-		break;
-	case PXCImage::PIXEL_FORMAT_Y8:  /* 8-Bit Gray Image, or IR 8-bit */
-		cvDataType = CV_8U;
-		cvDataWidth = 1;
-		break;
-
-		/* STREAM_TYPE_DEPTH */
-	case PXCImage::PIXEL_FORMAT_DEPTH: /* 16-bit unsigned integer with precision mm. */
-	case PXCImage::PIXEL_FORMAT_DEPTH_RAW: /* 16-bit unsigned integer with device specific precision (call device->QueryDepthUnit()) */
-		cvDataType = CV_16U;
-		cvDataWidth = 2;
-		break;
-	case PXCImage::PIXEL_FORMAT_DEPTH_F32: /* 32-bit float-point with precision mm. */
-		cvDataType = CV_32F;
-		cvDataWidth = 4;
-		break;
-
-		/* STREAM_TYPE_IR */
-	case PXCImage::PIXEL_FORMAT_Y16:          /* 16-Bit Gray Image */
-		cvDataType = CV_16U;
-		cvDataWidth = 2;
-		break;
-	case PXCImage::PIXEL_FORMAT_Y8_IR_RELATIVE:    /* Relative IR Image */
-		cvDataType = CV_8U;
-		cvDataWidth = 1;
-		break;
-	}
-
-#ifdef DEBUG_LOG
-	cout << "after switch" << endl;
-#endif
-
-	// suppose that no other planes
-	if (data.planes[1] != NULL) throw(0); // not implemented
-										  // suppose that no sub pixel padding needed
-	if (data.pitches[0] % cvDataWidth != 0) throw(0); // not implemented
-
-	outImg->create(imgInfo.height, data.pitches[0] / cvDataWidth, cvDataType);
-
-	memcpy(outImg->data, data.planes[0], imgInfo.height*imgInfo.width*cvDataWidth * sizeof(pxcBYTE));
-
-	inImg->ReleaseAccess(&data);
-}
-
-// Convert PXCImage to opencv Mat (YUY2 format)
-void RSSDKConvert(const wchar_t* filename)
-{
-	PXCSenseManager *sm = PXCSenseManager::CreateInstance();
-
-#ifdef DEBUG_LOG
-	cout << "enter RSSDKConvert" << endl;
-#endif
-
-	sm->QueryCaptureManager()->SetFileName(filename, false);
-	sm->EnableStream(PXCCapture::STREAM_TYPE_DEPTH, 0, 0);
-	sm->Init();
-
-#ifdef DEBUG_LOG
-	cout << "enter Init" << filename << endl;
-#endif
-
-	PXCImage *depthIm;
-	PXCImage::ImageData depth_data;
-	PXCImage::ImageInfo depth_information;
-
-	//Mat paintMat = Mat(480, 640, CV_8UC1);
-
-	// Set realtime=true and pause=false
-	sm->QueryCaptureManager()->SetRealtime(false);
-	sm->QueryCaptureManager()->SetPause(true);
-
-	int nframes = sm->QueryCaptureManager()->QueryNumberOfFrames();
-
-#ifdef DEBUG_LOG
-	cout << "nframes:\t" << nframes << endl;
-#endif
-
-	const static std::string WINDOWNAME = "Depth";	//
-	cv::namedWindow(WINDOWNAME);				//	
-	cv::setMouseCallback(WINDOWNAME, onMouse);	//
-
-	//cv::FileStorage fs("test.xml", cv::FileStorage::WRITE);
-	//if (!fs.isOpened()) {
-	//	std::cout << "File can not be opened." << std::endl;
-	//}
-	Labeling label;		//ラベリング
+	// window setting
+	const static std::string WINDOWNAME = "Depth";
+	cv::namedWindow(WINDOWNAME);
+	cv::setMouseCallback(WINDOWNAME, onMouse);
 
 	// Streaming loop
-	cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);				//depthの取得データ
-
 	// No.6 nframes = 1953147, init = 1000, best = 4500
-	for (int i = 4500; i < nframes; i += 1) {
-
-		// Set to work on every 3rd frame of data
-		sm->QueryCaptureManager()->SetFrameByIndex(i);
-		sm->FlushFrame();
-
-		// Ready for the frame to be ready
-		pxcStatus sts = sm->AcquireFrame(true);
-		if (sts < PXC_STATUS_NO_ERROR) break;
-
-		// Retrieve the sample and work on it. The image is in sample->color.
-		PXCCapture::Sample* sample = sm->QuerySample();
-		ConvertPXCImageToOpenCVMat(sample->depth, &depthMat);
-		cv::resize(depthMat, depthMat, cv::Size(), 2.0, 2.0);
+	for (int i = 4500; i < sensor.nframes; i += 1) {
+		sensor.getFrame(i, &depthMat);
 
 		// tracking
 		label.labeling(depthMat, 1);
+
+		// perspective
+
 
 		// draw mat
 		Mat depthTmp, paintMat;
 		depthMat.convertTo(depthTmp, CV_8U, 255.0f / 8000.0f, 0);
 		cv::cvtColor(depthTmp, paintMat, CV_GRAY2BGR);
 
+		// draw frame
 		char str[64];
-		sprintf_s(str, "%4d", i);// , (int)r.size);
+		sprintf_s(str, "%4d", i);
 		cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(244, 67, 57), 2, CV_AA);
 
+		// draw label result
 		for (auto r : label.results) {
-			cv::rectangle(paintMat, Point(r.x - +r.width/2, r.y - r.height/2), Point(r.x + r.width/2, r.y + r.height/2), Scalar(136, 150, 0), 2);
+			cv::rectangle(paintMat, Point(r.x - +r.width / 2, r.y - r.height / 2), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(136, 150, 0), 2);
 			sprintf_s(str, "%4d", r.id);// , (int)r.size);
 			cv::putText(paintMat, str, cv::Point(r.x, r.y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(54, 67, 244), 2, CV_AA);
 		}
 
+		// depth
 		sprintf_s(str, "%4d", depthMat.at<short>(m_y, m_x));
 		cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(7, 193, 255), 2, CV_AA);
 
 		cv::imshow(WINDOWNAME, paintMat);
-		int key = cv::waitKey(1);
+		int key = cv::waitKey(10);
 		if (key == 'q')
 			break;
 
-		// Resume processing the next frame
-		sm->ReleaseFrame();
+		sensor.frameRelease();
 	}
-
-	//fs.release();
-	sm->Release();
-}
-
-int main()
-{
-	RSSDKConvert(L"C:\\Users\\itolab\\Downloads\\No6_out2017-11-07 5-44-46.rssdk");//No5_out2017-11-14 5-40-31.rssdk
-	//system("pause");
 	return 0;
 }
