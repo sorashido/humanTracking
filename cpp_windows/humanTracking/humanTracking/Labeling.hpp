@@ -5,9 +5,8 @@
 
 // parameter
 namespace labelParam {
-	const int INIT = 1000;
-	const int SERCH_NUM = 8;
-
+	const int INIT = 10000;
+	
 	const int MIN_SIZE = 20;
 	const int MAX_SIZE = 204800;
 	const int MIN_WIDTH = 0;
@@ -16,14 +15,11 @@ namespace labelParam {
 	const int MAX_HEIGHT = 6000;
 
 	const int RELATION_DEPTH = 50;
+	const double RELATION_RATE = 0.05;
 
-	//const char X_4[SERCH_NUM] = { -1, 1, 0, 0 };
-	//const char Y_4[SERCH_NUM] = { 0, 0, -1, 1 };
+	const int SERCH_NUM = 8;
 	const char X[SERCH_NUM] = { -1, 0, 1, -1, 1, -1, 0, 1};
 	const char Y[SERCH_NUM] = { -1, -1, -1, 0, 0, 1, 1, 1};
-
-	//const char X[SERCH_NUM] = { -1, 0, 1, -1, 1, -1, 0, 1, -2, -1, 0, 1, 2, -2, 2, -2, 2, -2, 2, -2, -1, 0, 1, 2};
-	//const char Y[SERCH_NUM] = { -1, -1, -1, 0, 0, 1, 1, 1, -2, -2, -2, -2, -2, -1, -1, 0, 0, 1, 1, 2, 2, 2, 2, 2};
 }
 
 using namespace labelParam;

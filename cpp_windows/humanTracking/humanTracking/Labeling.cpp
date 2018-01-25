@@ -45,7 +45,7 @@ void Labeling::labeling(cv::Mat depth, int step)
 
 					for (int i = 0; i < SERCH_NUM; i++) {
 						double ret = getNotLabelDepth(depth, table, tx + X[i], ty + Y[i]);
-						if (abs(ret - d) < RELATION_DEPTH && table.at<short>(ty + Y[i], tx + X[i])==INIT && depth.at<short>(ty + Y[i], tx + X[i]) != 0) {
+						if (d * RELATION_RATE < abs(ret - d) && table.at<short>(ty + Y[i], tx + X[i])==INIT && depth.at<short>(ty + Y[i], tx + X[i]) != 0) {
 							pointBuf.push_back(getBufInf(tx + X[i], ty + Y[i]));
 						}
 					}
@@ -58,10 +58,8 @@ void Labeling::labeling(cv::Mat depth, int step)
 						labelBuf = getlabelInf(labelBuf.x / labelBuf.size, labelBuf.y / labelBuf.size, labelBuf.d / labelBuf.size, labelBuf.width, labelBuf.height, labelBuf.size, id);
 						results.push_back(labelBuf);
 						isId.insert(id);
-						id += 1;
-
-						printf("%d\n", id);
 				}
+				id += 1;
 			}
 		}
 	}
