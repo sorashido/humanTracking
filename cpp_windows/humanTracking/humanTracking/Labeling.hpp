@@ -7,15 +7,14 @@
 namespace labelParam {
 	const int INIT = 10000;
 	
-	const int MIN_SIZE = 20;
+	const int MIN_SIZE = 100;
 	const int MAX_SIZE = 204800;
 	const int MIN_WIDTH = 0;
 	const int MAX_WIDTH = 6000;
 	const int MIN_HEIGHT = 0;
 	const int MAX_HEIGHT = 6000;
 
-	const int RELATION_DEPTH = 50;
-	const double RELATION_RATE = 0.05;
+	const double RELATION_RATE = 0.01;
 
 	const int SERCH_NUM = 8;
 	const char X[SERCH_NUM] = { -1, 0, 1, -1, 1, -1, 0, 1};
@@ -40,7 +39,7 @@ public:
 	cv::Mat table;	//ラベリング結果のテーブル
 	std::set<int>isId;
 
-	void labeling(cv::Mat depth, int step);//ラベリング
+	void labeling(cv::Mat depth);//ラベリング
 	//void drawResult(const std::string&winname);//描画
 
 private:

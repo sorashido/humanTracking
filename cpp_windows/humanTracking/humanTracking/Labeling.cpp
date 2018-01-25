@@ -8,8 +8,10 @@
 
 using namespace labelParam;
 std::vector<cv::Vec3d> bestInliers;
-void Labeling::labeling(cv::Mat depth, int step)
+void Labeling::labeling(cv::Mat depth)
 {
+	int step = 1;
+
 	id = 1;
 	results.clear();
 	isId.clear();

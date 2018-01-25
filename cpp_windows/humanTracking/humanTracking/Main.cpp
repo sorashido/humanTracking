@@ -33,7 +33,7 @@ int main(){
 		sensor.getFrame(i, &depthMat);
 
 		// tracking
-		label.labeling(depthMat, 1);
+		label.labeling(depthMat);
 
 		// perspective
 
@@ -51,7 +51,7 @@ int main(){
 		// draw label result
 		for (auto r : label.results) {
 			cv::rectangle(paintMat, Point(r.x - +r.width / 2, r.y - r.height / 2), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(136, 150, 0), 2);
-			sprintf_s(str, "%4d", r.id);// , (int)r.size);
+			sprintf_s(str, "%4d", (int)r.d);// , (int)r.size);
 			cv::putText(paintMat, str, cv::Point(r.x, r.y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(54, 67, 244), 2, CV_AA);
 		}
 
