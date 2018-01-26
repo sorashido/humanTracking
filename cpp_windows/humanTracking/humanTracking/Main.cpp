@@ -36,7 +36,7 @@ int main(){
 		label.labeling(depthMat);
 
 		// perspective
-
+		
 
 		// draw mat
 		Mat depthTmp, paintMat;
@@ -54,6 +54,8 @@ int main(){
 			sprintf_s(str, "%4d", (int)r.d);// , (int)r.size);
 			cv::putText(paintMat, str, cv::Point(r.x, r.y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(54, 67, 244), 2, CV_AA);
 		}
+
+		//
 
 		// depth
 		sprintf_s(str, "%4d", depthMat.at<short>(m_y, m_x));
