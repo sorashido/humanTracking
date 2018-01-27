@@ -29,80 +29,44 @@ int main(){
 	cv::namedWindow(WINDOWNAME);
 	cv::setMouseCallback(WINDOWNAME, onMouse);
 
-	VideoCapture cap("videos/sample.mp4"); //Macの場合
-
-	cv::String trackingAlg = "MIL";
-	MultiTracker trackers;
-	vector<Rect2d> objects;
-
-	sensor.getFrame(4980, &depthMat);
-	cv::Mat depthTmp, paintMat;
-	depthMat.convertTo(depthTmp, CV_8U, 255.0f / 8000.0f, 0);
-
-	vector<Rect> ROIs;
-	selectROIs("tracker", depthTmp, ROIs);
-	if (ROIs.size() < 1)return 0;
-	std::vector<Ptr<Tracker>> algorithms;
-	for (size_t i = 0; i < ROIs.size(); i++) {
-		algorithms.push_back(createTrackerByName(trackingAlg));
-		objects.push_back(ROIs[i]);
-	}
-	trackers.add(algorithms, depthTmp, objects);
-
 	// Streaming loop
 	// No.6 nframes = 1953147, init = 1000, best = 4500
 	for (int i = 4980; i < sensor.nframes; i += 1) {
 		sensor.getFrame(i, &depthMat);
 
-		// draw mat
-		//cv::Mat depthTmp, paintMat;
-		depthMat.convertTo(depthTmp, CV_8U, 255.0f / 8000.0f, 0);
-
 		// tracking
-		//label.labeling(depthMat);
-
-		trackers.update(depthTmp);
-
-		// draw mat
-		//cv::Mat depthTmp, paintMat;
-		//depthMat.convertTo(depthTmp, CV_8U, 255.0f / 8000.0f, 0);
-		cv::cvtColor(depthTmp, paintMat, CV_GRAY2BGR);
-		for (unsigned i = 0; i < trackers.getObjects().size(); i++)
-			rectangle(paintMat, trackers.getObjects()[i], Scalar(255, 0, 0), 2, 1);
-
-		//imshow("tracker", depthMat);
+		label.labeling(depthMat);
 
 		// perspective
-		
+
 
 		// draw mat
-		//cv::Mat depthTmp, paintMat;
-		//depthMat.convertTo(depthTmp, CV_8U, 255.0f / 8000.0f, 0);
-		//cv::cvtColor(depthTmp, paintMat, CV_GRAY2BGR);
+		cv::Mat depthTmp, paintMat;
+		depthMat.convertTo(depthTmp, CV_8U, 255.0f / 8000.0f, 0);
+		cv::cvtColor(depthTmp, paintMat, CV_GRAY2BGR);
 
-		// draw frame
-		char str[64];
-		sprintf_s(str, "%4d", i);
-		cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(244, 67, 57), 2, CV_AA);
+		{	// draw frame
+			char str[64];
+			sprintf_s(str, "%4d", i);
+			cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(244, 67, 57), 2, CV_AA);
 
-		// draw label result
-		//for (auto r : label.results) {
-		//	cv::rectangle(paintMat, Point(r.x - +r.width / 2, r.y - r.height / 2), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(136, 150, 0), 2);
-		//	sprintf_s(str, "%4d", (int)r.d);// , (int)r.size);
-		//	cv::putText(paintMat, str, cv::Point(r.x, r.y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(54, 67, 244), 2, CV_AA);
-		//}
+			// draw label result
+			for (auto r : label.results) {
+				cv::rectangle(paintMat, Point(r.x - +r.width / 2, r.y - r.height / 2), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(136, 150, 0), 2);
+				sprintf_s(str, "%4d", (int)r.d);// , (int)r.size);
+				cv::putText(paintMat, str, cv::Point(r.x, r.y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(54, 67, 244), 2, CV_AA);
+			}
 
-		//
+			// mouse depth
+			sprintf_s(str, "%4d", depthMat.at<short>(m_y, m_x));
+			cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(7, 193, 255), 2, CV_AA);
 
-		// depth
-		//sprintf_s(str, "%4d", depthMat.at<short>(m_y, m_x));
-		//cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(7, 193, 255), 2, CV_AA);
-
-		cv::imshow(WINDOWNAME, paintMat);
-		int key = cv::waitKey(10);
-		if (key == 'q')
-			break;
-
+			cv::imshow(WINDOWNAME, paintMat);
+			//drawDepthMat(WINDOWNAME, &depthMat, &label, i);
+			int key = cv::waitKey(10);
+			if (key == 'q')
+				break;
+		}
 		sensor.frameRelease();
 	}
 	return 0;
