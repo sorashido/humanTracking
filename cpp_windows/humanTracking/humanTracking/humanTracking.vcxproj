@@ -132,6 +132,7 @@
     <ClInclude Include="DepthSensor.hpp" />
     <ClInclude Include="Labeling.hpp" />
     <ClInclude Include="Projection.hpp" />
+    <ClInclude Include="samples_utility.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
