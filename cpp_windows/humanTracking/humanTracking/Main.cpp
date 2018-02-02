@@ -1,26 +1,22 @@
 ﻿#include <iostream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
-#include <opencv2/tracking.hpp>
-#include <memory>
 #include "pxcsensemanager.h"
 #include "Labeling.hpp"
 #include "DepthSensor.hpp"
-#include "samples_utility.hpp"
 
-int m_x, m_y, m_event;
-void onMouse(int event, int x, int y, int flags, void *param = NULL){
+using namespace std;
+using namespace cv;
+
+int m_x = 0, m_y = 0, m_event = 0;
+void onMouse(int event, int x, int y, int flags, void *param = NULL) {
 	m_event = event;
 	m_x = x;
 	m_y = y;
 }
 
-using namespace std;
-using namespace cv;
-
 int main(){
-	//std::unique_ptr<DepthSensor> sensor(new DepthSensor(L"C:\\Users\\itolab\\Downloads\\No6_out2017-11-07 5-44-46.rssdk"));
-	DepthSensor sensor(L"C:\\Users\\itolab\\Downloads\\No6_out2017-11-07 5-44-46.rssdk");
+	DepthSensor sensor(L"F:\\深度センサ記録\\20171103_Area A休日\\No6_out2017-11-03 6-08-56.rssdk");
 	Labeling label;
 	cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);
 
@@ -29,11 +25,16 @@ int main(){
 	cv::namedWindow(WINDOWNAME);
 	cv::setMouseCallback(WINDOWNAME, onMouse);
 
+	int view_mode = 0; //
+
 	// Streaming loop
+	// No.1
 	// No.6 nframes = 1953147, init = 1000, best = 4500
-	for (int i = 4980; i < sensor.nframes; i += 1) {
+	for (int i = 0; i < (int)sensor.nframes; i += 1) {
 		sensor.getFrame(i, &depthMat);
 
+
+		//switch mode
 		// tracking
 		label.labeling(depthMat);
 
@@ -45,28 +46,36 @@ int main(){
 		depthMat.convertTo(depthTmp, CV_8U, 255.0f / 8000.0f, 0);
 		cv::cvtColor(depthTmp, paintMat, CV_GRAY2BGR);
 
-		{	// draw frame
-			char str[64];
-			sprintf_s(str, "%4d", i);
-			cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(244, 67, 57), 2, CV_AA);
+		// draw frame
+		char str[64];
+		sprintf_s(str, "%4d", i);
+		cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(244, 67, 57), 2, CV_AA);
 
+		// mouse depth
+		sprintf_s(str, "%4d", depthMat.at<short>(m_y, m_x));
+		cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(7, 193, 255), 2, CV_AA);
+
+		switch (view_mode) {
+		case 1:
 			// draw label result
 			for (auto r : label.results) {
 				cv::rectangle(paintMat, Point(r.x - +r.width / 2, r.y - r.height / 2), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(136, 150, 0), 2);
 				sprintf_s(str, "%4d", (int)r.d);// , (int)r.size);
 				cv::putText(paintMat, str, cv::Point(r.x, r.y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(54, 67, 244), 2, CV_AA);
 			}
-
-			// mouse depth
-			sprintf_s(str, "%4d", depthMat.at<short>(m_y, m_x));
-			cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(7, 193, 255), 2, CV_AA);
-
-			cv::imshow(WINDOWNAME, paintMat);
-			//drawDepthMat(WINDOWNAME, &depthMat, &label, i);
-			int key = cv::waitKey(10);
-			if (key == 'q')
-				break;
+			break;
+		case 2:
+			// draw perspective result
+			break;
+		default:
+			break;
 		}
+
+		cv::imshow(WINDOWNAME, paintMat);
+		int key = cv::waitKey(1);
+		if (key >= '0' && key <= '9') view_mode = key - '0';
+		else if (key == 'q') break;
+
 		sensor.frameRelease();
 	}
 	return 0;
