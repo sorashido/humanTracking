@@ -15,7 +15,7 @@ DepthSensor::DepthSensor(const wchar_t * filename)
 	PXCImage::ImageData depth_data;
 	PXCImage::ImageInfo depth_information;
 
-	//Mat paintMat = Mat(480, 640, CV_8UC1);
+	//Mat paintMat = Mat(480, 640, CV_8UC1);	
 
 	// Set realtime=true and pause=false
 	sm->QueryCaptureManager()->SetRealtime(false);
@@ -33,7 +33,7 @@ void DepthSensor::frameRelease() {
 	sm->ReleaseFrame();
 }
 
-void DepthSensor::getFrame(int frame, cv::Mat* depthMat){
+void DepthSensor::getFrame(int frame, cv::Mat* depthMat, PXCPoint3DF32 *vertices) {
 	// Set to work on every 3rd frame of data
 	sm->QueryCaptureManager()->SetFrameByIndex(frame);
 	sm->FlushFrame();
@@ -44,11 +44,32 @@ void DepthSensor::getFrame(int frame, cv::Mat* depthMat){
 
 	// Retrieve the sample and work on it. The image is in sample->color.
 	PXCCapture::Sample* sample = sm->QuerySample();
+
+	//projection
+	static PXCProjection *projection = sm->QueryCaptureManager()->QueryDevice()->CreateProjection();
+	projection->QueryVertices(sample->depth, vertices);
+
 	ConvertPXCImageToOpenCVMat(sample->depth, depthMat);
 
 	// resize 640 x 480
 	cv::resize(*depthMat, *depthMat, cv::Size(), 2.0, 2.0);
 }
+
+//void DepthSensor::getWorld(int frame, std::vector<Intel::RealSense::PointF32>& wcords) {
+//	// Set to work on every 3rd frame of data
+//	sm->QueryCaptureManager()->SetFrameByIndex(frame);
+//	sm->FlushFrame();
+//
+//	// Ready for the frame to be ready
+//	pxcStatus sts = sm->AcquireFrame(true);
+//	if (sts < PXC_STATUS_NO_ERROR) return;
+//
+//	// Retrieve the sample and work on it. The image is in sample->color.
+//	PXCCapture::Sample* sample = sm->QuerySample();
+//
+//	//sample->depth
+//	projection.DepthToWorld(sample->depth, sample->depth, wcords);
+//}
 
 void DepthSensor::ConvertPXCImageToOpenCVMat(PXCImage *inImg, cv::Mat *outImg) {
 	int cvDataType;

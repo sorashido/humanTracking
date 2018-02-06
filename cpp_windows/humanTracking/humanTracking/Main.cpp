@@ -20,6 +20,9 @@ int main(){
 	Labeling label;
 	cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);
 
+	std::vector<Intel::RealSense::Point3DF32> vertices;
+	vertices.resize(320 * 240);
+
 	// window setting
 	const static std::string WINDOWNAME = "Depth";
 	cv::namedWindow(WINDOWNAME);
@@ -31,8 +34,7 @@ int main(){
 	// No.1
 	// No.6 nframes = 1953147, init = 1000, best = 4500
 	for (int i = 0; i < (int)sensor.nframes; i += 1) {
-		sensor.getFrame(i, &depthMat);
-
+		sensor.getFrame(i, &depthMat, &vertices[0]);
 
 		//switch mode
 		// tracking
@@ -49,23 +51,26 @@ int main(){
 		// draw frame
 		char str[64];
 		sprintf_s(str, "%4d", i);
-		cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(244, 67, 57), 2, CV_AA);
+		cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(244, 67, 57), 2, CV_AA);
 
 		// mouse depth
-		sprintf_s(str, "%4d", depthMat.at<short>(m_y, m_x));
-		cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(7, 193, 255), 2, CV_AA);
+		//sprintf_s(str, "%4d", depthMat.at<short>(m_y, m_x));
+		//cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(7, 193, 255), 2, CV_AA);
+		sprintf_s(str, "%4d, %4d, %4d", (int)vertices[m_y/2*320+m_x/2].x, (int)vertices[m_y / 2 * 320 + m_x/2].y, (int)vertices[m_y / 2 * 320 + m_x/2].z);
+		cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(7, 193, 255), 2, CV_AA);
 
 		switch (view_mode) {
 		case 1:
 			// draw label result
 			for (auto r : label.results) {
-				cv::rectangle(paintMat, Point(r.x - +r.width / 2, r.y - r.height / 2), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(136, 150, 0), 2);
+				cv::rectangle(paintMat, Point(r.x - r.width / 2, r.y - r.height / 2), Point(r.x + r.width / 2, r.y + r.height / 2), Scalar(136, 150, 0), 2);
 				sprintf_s(str, "%4d", (int)r.d);// , (int)r.size);
-				cv::putText(paintMat, str, cv::Point(r.x, r.y), cv::FONT_HERSHEY_SIMPLEX, 1.2, cv::Scalar(54, 67, 244), 2, CV_AA);
+				cv::putText(paintMat, str, cv::Point(r.x, r.y), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
 			}
 			break;
 		case 2:
-			// draw perspective result
+			// stop
+			i -= 1;
 			break;
 		default:
 			break;

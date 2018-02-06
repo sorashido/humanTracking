@@ -10,7 +10,8 @@ class DepthSensor {
 public:
 	DepthSensor(const wchar_t* filename);// { init(filename); }	
 	~DepthSensor();
-	void getFrame(int frame, cv::Mat* depthMat);
+	void getFrame(int frame, cv::Mat* depthMat, PXCPoint3DF32 *vertices);
+	//void getWorld(int frame, std::vector<Intel::RealSense::PointF32>& wcords);
 	int nframes;
 	void frameRelease();
 private:
