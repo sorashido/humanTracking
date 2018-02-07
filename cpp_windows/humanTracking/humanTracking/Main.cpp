@@ -28,12 +28,12 @@ std::vector<personInf> people;//
 std::vector<std::vector<personInf>> track_data;
 
 int main(){
-	DepthSensor sensor(L"D:\\track_data\\No6_out2017-11-03 6-08-56.rssdk");
+	//DepthSensor sensor(L"D:\\track_data\\No6_out2017-11-03 6-08-56.rssdk");
 	//DepthSensor sensor(L"F:\\深度センサ記録\\20171103_Area A休日\\No6_out2017-11-03 6-08-56.rssdk");
+	DepthSensor sensor(L"C:\\Users\\itolab\\track_data\\No6_out2017-11-03 6-08-56.rssdk");
 
 	Labeling label;
 	cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);
-	//Mat trackMat = Mat::zeros(cv::Size(640, 480), CV_8UC3);
 
 	//std::vector<Intel::RealSense::Point3DF32> camera, world;
 	//camera.resize(320 * 240);
@@ -52,6 +52,8 @@ int main(){
 		sensor.getFrame(i, &depthMat);
 
 		label.labeling(depthMat);
+
+		Mat trackMat = Mat::zeros(cv::Size(640, 480), CV_8UC3);
 
 		//
 		for (auto r : label.results) {
@@ -84,7 +86,6 @@ int main(){
 				cv::rectangle(paintMat, Point(r.x*rate - r.width*rate / 2, r.y*rate - r.height*rate / 2), Point(r.x*rate + r.width*rate / 2, r.y*rate + r.height*rate / 2), Scalar(136, 150, 0), 2);
 				sprintf_s(str, "%4d", (int)r.d);
 				cv::putText(paintMat, str, cv::Point(r.x*rate, r.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
-				//cv::circle(paintMat, cv::Point(worldPoint.x * rate, -worldPoint.z * 480 / 4000 + 650), 5, cv::Scalar(54, 67, 244));
 			}
 			break;
 		case 9:
@@ -95,6 +96,14 @@ int main(){
 			break;
 		}
 
+		for (auto r : label.results) {
+			cameraPoint.x = r.x;
+			cameraPoint.y = r.y;
+			cameraPoint.z = r.d;
+			sensor.cameraToWorldPoint(&cameraPoint, &worldPoint);
+			cv::circle(trackMat, cv::Point(worldPoint.x * rate, -worldPoint.z * 480 / 4000 + 650), 5, cv::Scalar(54, 67, 244));
+		}
+		cv::imshow("track", trackMat);
 		cv::imshow(WINDOWNAME, paintMat);
 		int key = cv::waitKey(10);
 		if (key >= '0' && key <= '9') view_mode = key - '0';

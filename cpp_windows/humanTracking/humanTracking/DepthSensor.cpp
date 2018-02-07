@@ -60,38 +60,38 @@ void DepthSensor::getFrame(int frame, cv::Mat* depthMat) {
 //													  0.00000000e+00, 7.07106781e-01, 7.07106781e-01, 0.00000000e+00,
 //													  0.00000000e+00, -7.07106781e-01, 7.07106781e-01, 0.00000000e+00,
 //													  0.00000000e+00, 2.47487373e+03, 2.47487373e+03, 1.00000000e+00);
-cv::Mat m_perspectiveMat = (cv::Mat_<double>(4, 4) << 1.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+const static cv::Mat m_perspectiveMat = (cv::Mat_<double>(4, 4) << 1.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
 													  0.00000000e+00, 7.07106781e-01, -7.07106781e-01, 0.00000000e+00,
 													  0.00000000e+00, 7.07106781e-01, 7.07106781e-01, 0.00000000e+00,
 													  0.00000000e+00, 2.47487373e+03, -2.47487373e+03, 1.00000000e+00);
 static cv::Mat localMat(4, 1, CV_64FC1);
 static cv::Mat worldMat(4, 1, CV_64FC1);
-void DepthSensor::cameraToWorld(PXCPoint3DF32 *camera, PXCPoint3DF32 *world) {
-	for (int i = 0; i < 320 * 240; i++) {
-		localMat.at<double>(0, 0) = camera[i].x;
-		localMat.at<double>(1, 0) = camera[i].y;
-		localMat.at<double>(2, 0) = camera[i].z;
-		localMat.at<double>(3, 0) = 1;
-
-		worldMat = m_perspectiveMat * localMat;
-
-		world[i].x = worldMat.at<double>(0, 0);
-		world[i].y = worldMat.at<double>(1, 0);
-		world[i].z = worldMat.at<double>(2, 0);
-	}
-}
+//void DepthSensor::cameraToWorld(PXCPoint3DF32 *camera, PXCPoint3DF32 *world) {
+//	for (int i = 0; i < 320 * 240; i++) {
+//		localMat.at<double>(0, 0) = camera[i].x;
+//		localMat.at<double>(1, 0) = camera[i].y;
+//		localMat.at<double>(2, 0) = camera[i].z;
+//		localMat.at<double>(3, 0) = 1;
+//
+//		worldMat = m_perspectiveMat * localMat;
+//
+//		world[i].x = worldMat.at<double>(0, 0);
+//		world[i].y = worldMat.at<double>(1, 0);
+//		world[i].z = worldMat.at<double>(2, 0);
+//	}
+//}
 
 void DepthSensor::cameraToWorldPoint(PXCPoint3DF32 *camera, PXCPoint3DF32 *world) {
-	localMat.at<double>(0, 0) = camera->x;
-	localMat.at<double>(1, 0) = camera->y;
-	localMat.at<double>(2, 0) = camera->z;
+	localMat.at<double>(0, 0) = camera[0].x;
+	localMat.at<double>(1, 0) = camera[0].y;
+	localMat.at<double>(2, 0) = camera[0].z;
 	localMat.at<double>(3, 0) = 1;
 
 	worldMat = m_perspectiveMat * localMat;
 
-	world->x = worldMat.at<double>(0, 0);
-	world->y = worldMat.at<double>(1, 0);
-	world->z = worldMat.at<double>(2, 0);
+	world[0].x = worldMat.at<double>(0, 0);
+	world[0].y = worldMat.at<double>(1, 0);
+	world[0].z = worldMat.at<double>(2, 0);
 }
 
 void DepthSensor::ConvertPXCImageToOpenCVMat(PXCImage *inImg, cv::Mat *outImg) {
