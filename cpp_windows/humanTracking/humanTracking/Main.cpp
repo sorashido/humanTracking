@@ -35,10 +35,10 @@ int main(){
 	Labeling label;
 	cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);
 
-	//std::vector<Intel::RealSense::Point3DF32> camera, world;
+	//std::vector<Point3D> camera, world;
 	//camera.resize(320 * 240);
 	//world.resize(320 * 240);
-	static Intel::RealSense::Point3DF32 cameraPoint, worldPoint;
+	static Point3D cameraPoint, worldPoint;
 
 	// window setting
 	const static std::string WINDOWNAME = "Depth";
@@ -48,7 +48,7 @@ int main(){
 	int view_mode = 0;
 	
 	// Streaming loop
-	for (int i = 0; i < (int)sensor.nframes; i += 1) {
+	for (int i = 0; i < 100000; i += 1) {
 		sensor.getFrame(i, &depthMat);
 
 		label.labeling(depthMat);
@@ -56,11 +56,20 @@ int main(){
 		Mat trackMat = Mat::zeros(cv::Size(640, 480), CV_8UC3);
 
 		//
-		for (auto r : label.results) {
-			cameraPoint.x = r.x;
-			cameraPoint.y = r.y;
-			cameraPoint.z = r.d;
-			sensor.cameraToWorldPoint(&cameraPoint, &worldPoint);
+		Point3D c1, c2, w1, w2;
+		for (auto r1 : label.results) {
+			c1.x = r1.x;
+			c1.y = r1.y;
+			c1.z = r1.d;
+			sensor.cameraToWorldPoint(&c1, &w1);
+
+			for (auto r2 : label.results) {
+				if (r1.id == r2.id)break;
+				c2.x = r2.x;
+				c2.y = r2.y;
+				c2.z = r2.d;
+				sensor.cameraToWorldPoint(&c2, &w2);
+			}
 		}
 
 		// drawing
