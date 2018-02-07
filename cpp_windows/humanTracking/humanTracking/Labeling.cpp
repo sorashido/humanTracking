@@ -14,7 +14,7 @@ void Labeling::labeling(cv::Mat depth)
 
 	id = 1;
 	results.clear();
-	isId.clear();
+	//isId.clear();
 
 	table = cv::Mat::zeros(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);//init
 
@@ -47,7 +47,7 @@ void Labeling::labeling(cv::Mat depth)
 
 					for (int i = 0; i < SERCH_NUM; i++) {
 						double ret = getNotLabelDepth(depth, table, tx + X[i], ty + Y[i]);
-						if (d * RELATION_RATE < abs(ret - d) && table.at<short>(ty + Y[i], tx + X[i])==INIT && depth.at<short>(ty + Y[i], tx + X[i]) != 0) {
+						if (abs(ret - d) < ((ret+d)/2*RELATION_RATE) && table.at<short>(ty + Y[i], tx + X[i])==INIT && depth.at<short>(ty + Y[i], tx + X[i]) != 0) {
 							pointBuf.push_back(getBufInf(tx + X[i], ty + Y[i]));
 						}
 					}
@@ -59,7 +59,7 @@ void Labeling::labeling(cv::Mat depth)
 					&& labelBuf.height > MIN_HEIGHT && labelBuf.height < MAX_HEIGHT) {
 						labelBuf = getlabelInf(labelBuf.x / labelBuf.size, labelBuf.y / labelBuf.size, labelBuf.d / labelBuf.size, labelBuf.width, labelBuf.height, labelBuf.size, id);
 						results.push_back(labelBuf);
-						isId.insert(id);
+						//isId.insert(id);
 				}
 				id += 1;
 			}

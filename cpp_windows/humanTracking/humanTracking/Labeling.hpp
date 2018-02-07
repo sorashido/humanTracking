@@ -7,14 +7,14 @@
 namespace labelParam {
 	const int INIT = 10000;
 	
-	const int MIN_SIZE = 100;
+	const int MIN_SIZE = 25;
 	const int MAX_SIZE = 204800;
 	const int MIN_WIDTH = 0;
-	const int MAX_WIDTH = 6000;
+	const int MAX_WIDTH = 3000;
 	const int MIN_HEIGHT = 0;
-	const int MAX_HEIGHT = 6000;
+	const int MAX_HEIGHT = 3000;
 
-	const double RELATION_RATE = 0.01;
+	const double RELATION_RATE = 0.1;
 
 	const int SERCH_NUM = 8;
 	const char X[SERCH_NUM] = { -1, 0, 1, -1, 1, -1, 0, 1};
@@ -35,15 +35,13 @@ public:
 		int id;		   //id
 	}labelInf;
 
-	std::vector<labelInf> results;//ラベリングの結果詳細
-	cv::Mat table;	//ラベリング結果のテーブル
-	std::set<int>isId;
-
-	void labeling(cv::Mat depth);//ラベリング
-	//void drawResult(const std::string&winname);//描画
-
+	std::vector<labelInf> results;//labeling
+	//std::set<int>isId;
+	void labeling(cv::Mat depth);//
+	//void drawResult(const std::string&winname);
 private:
-	int id;//ラベリングの数
+	int id;
+	cv::Mat table;	//
 
 	typedef struct {
 		short x;
