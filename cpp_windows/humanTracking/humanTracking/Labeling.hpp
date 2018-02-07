@@ -48,12 +48,11 @@ private:
 		short y;
 	}Buf;//pointバッファー
 
-	//取得メソッド
+	//get method
 	int getNotLabelDepth(cv::Mat depth, cv::Mat table, int x, int y){
 		if (table.at<short>(y, x) == INIT)return depth.at<short>(y, x);
 		return 0;
 	}
-	//代入メソッド
 	labelInf getlabelInf(double x, double y, double z, double width, double height, double size,int id){
 		labelInf tmp = { x, y, z, width, height, size, id};
 		return tmp;

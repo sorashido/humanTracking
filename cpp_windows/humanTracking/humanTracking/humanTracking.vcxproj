@@ -88,7 +88,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\opencv\build\install\x64\vc15\lib;C:\Program Files %28x86%29\Intel\RSSDK\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world340.lib;libpxc_d.lib;libpxcmd_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world340d.lib;libpxc_d.lib;libpxcmd_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -114,6 +114,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>C:\opencv\build\install\include;C:\Program Files %28x86%29\Intel\RSSDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -126,10 +127,12 @@
     <ClCompile Include="DepthSensor.cpp" />
     <ClCompile Include="Labeling.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Tracking.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DepthSensor.hpp" />
     <ClInclude Include="Labeling.hpp" />
+    <ClInclude Include="Tracking.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

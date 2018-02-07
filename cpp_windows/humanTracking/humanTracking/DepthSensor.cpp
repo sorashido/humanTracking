@@ -33,7 +33,7 @@ void DepthSensor::frameRelease() {
 	sm->ReleaseFrame();
 }
 
-void DepthSensor::getFrame(int frame, cv::Mat* depthMat, PXCPoint3DF32 *vertices) {
+void DepthSensor::getFrame(int frame, cv::Mat* depthMat) {
 	// Set to work on every 3rd frame of data
 	sm->QueryCaptureManager()->SetFrameByIndex(frame);
 	sm->FlushFrame();
@@ -47,7 +47,7 @@ void DepthSensor::getFrame(int frame, cv::Mat* depthMat, PXCPoint3DF32 *vertices
 
 	//projection
 	static PXCProjection *projection = sm->QueryCaptureManager()->QueryDevice()->CreateProjection();
-	projection->QueryVertices(sample->depth, vertices);
+	//projection->QueryVertices(sample->depth, vertices);
 
 	ConvertPXCImageToOpenCVMat(sample->depth, depthMat);
 
