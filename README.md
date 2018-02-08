@@ -1,4 +1,7 @@
 # humanTracking
-人流トラッキング
+human detect & tracking by depth camera
 
-## cpp
+## detect
+- region growing
+
+## tracking
