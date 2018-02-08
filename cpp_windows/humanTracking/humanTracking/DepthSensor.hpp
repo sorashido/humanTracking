@@ -23,6 +23,7 @@ public:
 
 	//void cameraToWorld(PXCPoint3DF32 *camera, PXCPoint3DF32 *world);
 	void cameraToWorldPoint(Point3D *camera, Point3D *world);
+	void worldToCameraPoint(Point3D * world, Point3D * local);
 	//void cameraToWorldPoint(PXCPoint3DF32 * camera, PXCPoint3DF32 * world);
 private:
 	void ConvertPXCImageToOpenCVMat(PXCImage *inImg, cv::Mat *outImg);

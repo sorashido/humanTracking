@@ -94,6 +94,19 @@ void DepthSensor::cameraToWorldPoint(Point3D *camera, Point3D *world) {
 	world->z = worldMat.at<double>(2, 0);
 }
 
+void DepthSensor::worldToCameraPoint(Point3D *world, Point3D *camera) {
+	worldMat.at<double>(0, 0) = world->x;
+	worldMat.at<double>(1, 0) = world->y;
+	worldMat.at<double>(2, 0) = world->z;
+	worldMat.at<double>(3, 0) = 1;
+
+	localMat = m_perspectiveMat.inv() * worldMat;
+
+	camera->x = localMat.at<double>(0, 0);
+	camera->y = localMat.at<double>(1, 0);
+	camera->z = localMat.at<double>(2, 0);
+}
+
 void DepthSensor::ConvertPXCImageToOpenCVMat(PXCImage *inImg, cv::Mat *outImg) {
 	int cvDataType;
 	int cvDataWidth;
