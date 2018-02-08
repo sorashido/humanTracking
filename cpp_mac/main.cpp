@@ -3,42 +3,9 @@
 #include <librealsense2/rs.hpp>
 #include <librealsense2/rs.h>
 
-//cv::Mat PXCImage2CVMat(PXCImage *pxcImage, PXCImage::PixelFormat format)
-//{
-//    PXCImage::ImageData data;
-//    pxcImage->AcquireAccess(PXCImage::ACCESS_READ, format, &data);
-//
-//    int width = pxcImage->QueryInfo().width;
-//    int height = pxcImage->QueryInfo().height;
-//
-//    if (!format)
-//        format = pxcImage->QueryInfo().format;
-//
-//    int type = 0;
-//    if (format == PXCImage::PIXEL_FORMAT_Y8)
-//        type = CV_8UC1;
-//    else if (format == PXCImage::PIXEL_FORMAT_RGB24)
-//        type = CV_8UC3;
-//    else if (format == PXCImage::PIXEL_FORMAT_DEPTH_F32)
-//        type = CV_32FC1;
-//
-//    cv::Mat ocvImage = cv::Mat(cv::Size(width, height), type, data.planes[0]);
-//
-//    pxcImage->ReleaseAccess(&data);
-//    return ocvImage;
-//}
-
 int main(int argc, char * argv[]) try {
-//
-//    pxcCHAR fileName[1024] = { 0 };
-//    PXCSenseManager *psm = PXCSenseManager::CreateInstance();
-//    PXCCaptureManager* captureManager = psm->QueryCaptureManager();
-//    captureManager->SetFileName(fileName, false);
-//    psm->QueryCaptureManager()->SetRealtime(false);
-//
-
     rs2::config cfg;
-    cfg.enable_device_from_file("/Users/tela/dev/src/github.com/sorashido/humanTracking/data/outdoors.bag");
+    cfg.enable_device_from_file("../data/outdoors.bag");
 
     rs2::pipeline p;
     p.start(cfg); // Load from file
