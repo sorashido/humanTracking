@@ -113,7 +113,7 @@ int main(){
 		for (auto p : people) {
 			for (auto t = track_data.begin(); t != track_data.end(); ++t){
 				personInf tmp = t->back();
-				if (sqrt(abs(tmp.x - p.x)*abs(tmp.x - p.x)) < 100 && sqrt(abs(tmp.z - p.z)*abs(tmp.z - p.z)) < 100) {
+				if (sqrt(abs(tmp.x - p.x)*abs(tmp.x - p.x)) < 30 && sqrt(abs(tmp.z - p.z)*abs(tmp.z - p.z)) < 100) {
 					t->push_back(p);
 					isadd = true;
 				}
