@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <fstream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <random>
@@ -28,9 +29,7 @@ typedef struct {
 }personInf;
 
 int main(){
-	//DepthSensor sensor(L"D:\\track_data\\No6_out2017-11-03 6-08-56.rssdk");
-	//DepthSensor sensor(L"F:\\深度センサ記録\\20171103_Area A休日\\No6_out2017-11-03 6-08-56.rssdk");
-	DepthSensor sensor(L"C:\\Users\\itolab\\track_data\\No6_out2017-11-03 6-08-56.rssdk");
+	DepthSensor sensor(L"D:\\track_data\\No6_out2017-11-03 6-08-56.rssdk");
 
 	Labeling label;
 	cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);
@@ -38,9 +37,6 @@ int main(){
 	std::vector<personInf> people;//
 	std::vector<std::vector<personInf>> track_data;
 
-	//std::vector<Point3D> camera, world;
-	//camera.resize(320 * 240);
-	//world.resize(320 * 240);
 	static Point3D cameraPoint, worldPoint;
 
 	// window setting
@@ -50,7 +46,10 @@ int main(){
 
 	int view_mode = 0;
 
-	std::random_device rnd;     // 非決定的な乱数生成器
+	std::random_device rnd;
+
+	ofstream myfile;
+	myfile.open("example.csv");
 	
 	// Streaming loop
 	for (int i = 6500; i < 200000; i += 1) {
@@ -164,6 +163,8 @@ int main(){
 			cv::rectangle(paintMat, Point(c1.x*rate - r.width*rate / 2, c1.y*rate - r.height*rate / 2), Point(c1.x*rate + r.width*rate / 2, c1.y*rate + r.height*rate / 2), Scalar(136, 150, 0), 2);
 			sprintf_s(str, "%4d", (int)r.id);
 			cv::putText(paintMat, str, cv::Point(c1.x*rate, c1.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
+
+			myfile << r.x << "," << r.y << "," << r.z << "," << r.frame << "\n";
 		}
 		//for (auto r : people) {
 		//	cameraPoint.x = r.x;
@@ -193,6 +194,8 @@ int main(){
 
 		sensor.frameRelease();
 	}
+	myfile.close();
+
 	return 0;
 }
 
