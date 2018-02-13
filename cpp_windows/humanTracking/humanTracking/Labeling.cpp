@@ -8,13 +8,12 @@
 
 using namespace labelParam;
 std::vector<cv::Vec3d> bestInliers;
-void Labeling::labeling(cv::Mat depth)
+void Labeling::labeling(cv::Mat depth, PXCPoint3DF32* vertices)
 {
 	int step = 1;
 
 	id = 1;
 	results.clear();
-	//isId.clear();
 
 	table = cv::Mat::zeros(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);//init
 
@@ -38,16 +37,22 @@ void Labeling::labeling(cv::Mat depth)
 				while (!pointBuf.empty()){
 					double ty = (pointBuf.back()).y, tx = (pointBuf.back()).x;
 					pointBuf.pop_back();
-					table.at<short>(ty,tx) = id;
+					table.at<short>(ty, tx) = id;
 					int d = depth.at<short>(ty, tx);
+
+					double cx, cy, cz = 0;
+					cx = vertices[(int)ty * 320 + (int)tx].x;
+					cy = vertices[(int)ty * 320 + (int)tx].y;
+					cz = vertices[(int)ty * 320 + (int)tx].z;
 
 					if (tx > maxw)maxw = tx; if (tx < minw)minw = tx;
 					if (ty > maxh)maxh = ty; if (ty < minh)maxh = ty;
-					labelBuf = getlabelInf(labelBuf.x + x, labelBuf.y + ty, labelBuf.d + d, maxw - minw, maxh - minh , labelBuf.size+1, id);//
+					//labelBuf = getlabelInf(labelBuf.x + x, labelBuf.y + ty, labelBuf.d + d, maxw - minw, maxh - minh , labelBuf.size+1, id);
+					labelBuf = getlabelInf(labelBuf.x + cx, labelBuf.y + cy, labelBuf.d + cz, maxw - minw, maxh - minh , labelBuf.size+1, id);
 
 					for (int i = 0; i < SERCH_NUM; i++) {
 						double ret = getNotLabelDepth(depth, table, tx + X[i], ty + Y[i]);
-						if (abs(ret - d) < ((ret+d)/2*RELATION_RATE) && table.at<short>(ty + Y[i], tx + X[i])==INIT && depth.at<short>(ty + Y[i], tx + X[i]) != 0) {
+						if (abs(ret - d) < ((ret + d)/2*RELATION_RATE) && table.at<short>(ty + Y[i], tx + X[i])==INIT && depth.at<short>(ty + Y[i], tx + X[i]) != 0) {
 							pointBuf.push_back(getBufInf(tx + X[i], ty + Y[i]));
 						}
 					}
@@ -59,7 +64,6 @@ void Labeling::labeling(cv::Mat depth)
 					&& labelBuf.height > MIN_HEIGHT && labelBuf.height < MAX_HEIGHT) {
 						labelBuf = getlabelInf(labelBuf.x / labelBuf.size, labelBuf.y / labelBuf.size, labelBuf.d / labelBuf.size, labelBuf.width, labelBuf.height, labelBuf.size, id);
 						results.push_back(labelBuf);
-						//isId.insert(id);
 				}
 				id += 1;
 			}

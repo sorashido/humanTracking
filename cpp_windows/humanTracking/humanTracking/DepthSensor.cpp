@@ -15,9 +15,6 @@ DepthSensor::DepthSensor(const wchar_t * filename)
 	PXCImage::ImageData depth_data;
 	PXCImage::ImageInfo depth_information;
 
-	//Mat paintMat = Mat(480, 640, CV_8UC1);	
-
-	// Set realtime=true and pause=false
 	sm->QueryCaptureManager()->SetRealtime(false);
 	sm->QueryCaptureManager()->SetPause(true);
 
@@ -33,7 +30,7 @@ void DepthSensor::frameRelease() {
 	sm->ReleaseFrame();
 }
 
-void DepthSensor::getFrame(int frame, cv::Mat* depthMat) {
+void DepthSensor::getFrame(int frame, cv::Mat* depthMat, PXCPoint3DF32* vertices) {
 	// Set to work on every 3rd frame of data
 	sm->QueryCaptureManager()->SetFrameByIndex(frame);
 	sm->FlushFrame();
@@ -47,40 +44,18 @@ void DepthSensor::getFrame(int frame, cv::Mat* depthMat) {
 
 	//projection
 	static PXCProjection *projection = sm->QueryCaptureManager()->QueryDevice()->CreateProjection();
-	//projection->QueryVertices(sample->depth, vertices);
+
+	projection->QueryVertices(sample->depth, vertices);
 
 	ConvertPXCImageToOpenCVMat(sample->depth, depthMat);
-
-	// resize 640 x 480
-	//cv::resize(*depthMat, *depthMat, cv::Size(), 2.0, 2.0);
 }
 
-// from top perspective view
-//cv::Mat m_perspectiveMat = (cv::Mat_<double>(4, 4) << 1.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-//													  0.00000000e+00, 7.07106781e-01, 7.07106781e-01, 0.00000000e+00,
-//													  0.00000000e+00, -7.07106781e-01, 7.07106781e-01, 0.00000000e+00,
-//													  0.00000000e+00, 2.47487373e+03, 2.47487373e+03, 1.00000000e+00);
 const static cv::Mat m_perspectiveMat = (cv::Mat_<double>(4, 4) << 1.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
 													  0.00000000e+00, 7.07106781e-01, -7.07106781e-01, 0.00000000e+00,
 													  0.00000000e+00, 7.07106781e-01, 7.07106781e-01, 0.00000000e+00,
 													  0.00000000e+00, 2.47487373e+03, -2.47487373e+03, 1.00000000e+00);
 static cv::Mat localMat(4, 1, CV_64FC1);
 static cv::Mat worldMat(4, 1, CV_64FC1);
-//void DepthSensor::cameraToWorld(PXCPoint3DF32 *camera, PXCPoint3DF32 *world) {
-//	for (int i = 0; i < 320 * 240; i++) {
-//		localMat.at<double>(0, 0) = camera[i].x;
-//		localMat.at<double>(1, 0) = camera[i].y;
-//		localMat.at<double>(2, 0) = camera[i].z;
-//		localMat.at<double>(3, 0) = 1;
-//
-//		worldMat = m_perspectiveMat * localMat;
-//
-//		world[i].x = worldMat.at<double>(0, 0);
-//		world[i].y = worldMat.at<double>(1, 0);
-//		world[i].z = worldMat.at<double>(2, 0);
-//	}
-//}
-
 void DepthSensor::cameraToWorldPoint(Point3D *camera, Point3D *world) {
 	localMat.at<double>(0, 0) = camera->x;
 	localMat.at<double>(1, 0) = camera->y;

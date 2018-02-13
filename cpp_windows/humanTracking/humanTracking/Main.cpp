@@ -50,12 +50,15 @@ int main(){
 
 	ofstream myfile;
 	myfile.open("example.csv");
+
+	std::vector<PXCPoint3DF32> vertices;
+	vertices.resize(DEPTH_HEIGHT*DEPTH_WIDTH);
 	
 	// Streaming loop
 	for (int i = 6500; i < 200000; i += 1) {
-		sensor.getFrame(i, &depthMat);
+		sensor.getFrame(i, &depthMat, &vertices[0]);
 
-		label.labeling(depthMat);
+		label.labeling(depthMat, &vertices[0]);
 
 		Mat trackMat = Mat::zeros(cv::Size(640, 480), CV_8UC3);
 
@@ -66,8 +69,8 @@ int main(){
 		std::set<int>isId;
 
 		for (auto r1 : label.results) {
-			c1.x = r1.x;
-			c1.y = r1.y;
+			c1.x = r1.x;// vertices[r1.y * 320 + r1.x].x;
+			c1.y = r1.y;// vertices[r1.y * 320 + r1.x].y;
 			c1.z = r1.d;
 			sensor.cameraToWorldPoint(&c1, &w1);
 
@@ -86,7 +89,7 @@ int main(){
 				c2.y = r2.y;
 				c2.z = r2.d;
 				sensor.cameraToWorldPoint(&c2, &w2);
-				if (sqrt(abs(w1.x - w2.x)*abs(w1.x - w2.x)) < 100 && sqrt(abs(w1.z - w2.z)*abs(w1.z - w2.z)) <  400) {
+				if (sqrt(abs(w1.x - w2.x)*abs(w1.x - w2.x)) < 400 && sqrt(abs(w1.z - w2.z)*abs(w1.z - w2.z)) <  400) {
 					personBuf.x += w2.x;
 					personBuf.y += w2.y;
 					personBuf.z += w2.z;
@@ -142,8 +145,8 @@ int main(){
 		sprintf_s(str, "%4d", i);
 		cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(244, 67, 57), 2, CV_AA);
 
-		//sprintf_s(str, "%4d, %4d, %4d", (int)world[m_y/rate * 320 + m_x/rate].x, (int)world[m_y/rate * 320 + m_x/rate].y, (int)world[m_y/rate * 320 + m_x/rate].z);
-		sprintf_s(str, "%4d", (int)depthMat.at<short>(m_y/rate, m_x/rate));
+		sprintf_s(str, "%4d, %4d, %4d", (int)vertices[m_y/rate * 320 + m_x/rate].x, (int)vertices[m_y/rate * 320 + m_x/rate].y, (int)vertices[m_y/rate * 320 + m_x/rate].z);
+		//sprintf_s(str, "%4d", (int)depthMat.at<short>(m_y/rate, m_x/rate));
 		cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(7, 193, 255), 2, CV_AA);
 
 		switch (view_mode) {

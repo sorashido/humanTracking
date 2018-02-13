@@ -2,6 +2,7 @@
 #define _LABELING_
 
 #include <opencv2/core/core.hpp>
+#include "pxcsensemanager.h"
 
 // parameter
 namespace labelParam {
@@ -37,7 +38,7 @@ public:
 
 	std::vector<labelInf> results;//labeling
 	//std::set<int>isId;
-	void labeling(cv::Mat depth);//
+	void labeling(cv::Mat depth, PXCPoint3DF32* vertices);//
 	//void drawResult(const std::string&winname);
 private:
 	int id;

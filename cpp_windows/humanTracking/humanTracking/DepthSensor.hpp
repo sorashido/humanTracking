@@ -17,9 +17,10 @@ public:
 	DepthSensor(const wchar_t* filename);// { init(filename); }	
 	~DepthSensor();
 	//void getFrame(int frame, cv::Mat* depthMat, PXCPoint3DF32 *vertices);
-	void getFrame(int frame, cv::Mat* depthMat);
 	int nframes;
 	void frameRelease();
+
+	void getFrame(int frame, cv::Mat * depthMat, PXCPoint3DF32 *vertices);
 
 	//void cameraToWorld(PXCPoint3DF32 *camera, PXCPoint3DF32 *world);
 	void cameraToWorldPoint(Point3D *camera, Point3D *world);
