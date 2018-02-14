@@ -47,8 +47,8 @@ void Labeling::labeling(cv::Mat depth, PXCPoint3DF32* vertices)
 
 					if (tx > maxw)maxw = tx; if (tx < minw)minw = tx;
 					if (ty > maxh)maxh = ty; if (ty < minh)maxh = ty;
-					//labelBuf = getlabelInf(labelBuf.x + x, labelBuf.y + ty, labelBuf.d + d, maxw - minw, maxh - minh , labelBuf.size+1, id);
-					labelBuf = getlabelInf(labelBuf.x + cx, labelBuf.y + cy, labelBuf.d + cz, maxw - minw, maxh - minh , labelBuf.size+1, id);
+					labelBuf = getlabelInf(labelBuf.x + tx, labelBuf.y + ty, labelBuf.d + d, labelBuf.cx + cx, labelBuf.cy + cy, labelBuf.cz + cz, maxw - minw, maxh - minh , labelBuf.size+1, id);
+					//labelBuf = getlabelInf(labelBuf.x + cx, labelBuf.y + cy, labelBuf.d + cz, maxw - minw, maxh - minh , labelBuf.size+1, id);
 
 					for (int i = 0; i < SERCH_NUM; i++) {
 						double ret = getNotLabelDepth(depth, table, tx + X[i], ty + Y[i]);
@@ -62,7 +62,9 @@ void Labeling::labeling(cv::Mat depth, PXCPoint3DF32* vertices)
 				if (labelBuf.size > MIN_SIZE && labelBuf.size < MAX_SIZE
 					&& labelBuf.width > MIN_WIDTH && labelBuf.width < MAX_WIDTH
 					&& labelBuf.height > MIN_HEIGHT && labelBuf.height < MAX_HEIGHT) {
-						labelBuf = getlabelInf(labelBuf.x / labelBuf.size, labelBuf.y / labelBuf.size, labelBuf.d / labelBuf.size, labelBuf.width, labelBuf.height, labelBuf.size, id);
+						labelBuf = getlabelInf(labelBuf.x / labelBuf.size, labelBuf.y / labelBuf.size, labelBuf.d / labelBuf.size, 
+												labelBuf.cx / labelBuf.size, labelBuf.cy / labelBuf.size, labelBuf.cz / labelBuf.size, 
+												labelBuf.width, labelBuf.height, labelBuf.size, id);
 						results.push_back(labelBuf);
 				}
 				id += 1;

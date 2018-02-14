@@ -27,9 +27,12 @@ using namespace labelParam;
 class Labeling{
 public:
 	typedef struct{
-		double x;	//x average
-		double y;	//y average
+		double x;	//screen x
+		double y;	//screen y
 		double d;	//depth
+		double cx;  //camera x
+		double cy;	//camera y
+		double cz;	//camera z
 		double width; //width
 		double height; //height
 		double size;   //size
@@ -54,8 +57,8 @@ private:
 		if (table.at<short>(y, x) == INIT)return depth.at<short>(y, x);
 		return 0;
 	}
-	labelInf getlabelInf(double x, double y, double z, double width, double height, double size,int id){
-		labelInf tmp = { x, y, z, width, height, size, id};
+	labelInf getlabelInf(double x, double y, double z, double cx, double cy, double cz, double width, double height, double size,int id){
+		labelInf tmp = { x, y, z, cx, cy, cz, width, height, size, id};
 		return tmp;
 	}
 	Buf getBufInf(short x, short y) {

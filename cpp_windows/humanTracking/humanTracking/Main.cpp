@@ -21,6 +21,9 @@ typedef struct {
 	double x;
 	double y;
 	double z;
+	double wx;
+	double wy;
+	double wz;
 	double width;
 	double height;
 	int num;
@@ -69,15 +72,18 @@ int main(){
 		std::set<int>isId;
 
 		for (auto r1 : label.results) {
-			c1.x = r1.x;// vertices[r1.y * 320 + r1.x].x;
-			c1.y = r1.y;// vertices[r1.y * 320 + r1.x].y;
-			c1.z = r1.d;
+			c1.x = r1.cx;// vertices[r1.y * 320 + r1.x].x;
+			c1.y = r1.cy;// vertices[r1.y * 320 + r1.x].y;
+			c1.z = r1.cz;
 			sensor.cameraToWorldPoint(&c1, &w1);
 
 			personInf personBuf;
-			personBuf.x = w1.x;
-			personBuf.y = w1.y;
-			personBuf.z = w1.z;
+			personBuf.wx = w1.x;
+			personBuf.wy = w1.y;
+			personBuf.wz = w1.z;
+			personBuf.x = r1.x;
+			personBuf.y = r1.y;
+			personBuf.z = r1.d;
 			personBuf.height = r1.height;
 			personBuf.width = r1.width;
 			personBuf.frame = i;
@@ -85,14 +91,17 @@ int main(){
 			personBuf.num = 1;
 			for (auto r2 : label.results) {
 				if (r1.id == r2.id)continue;
-				c2.x = r2.x;
-				c2.y = r2.y;
-				c2.z = r2.d;
+				c2.x = r2.cx;
+				c2.y = r2.cy;
+				c2.z = r2.cz;
 				sensor.cameraToWorldPoint(&c2, &w2);
 				if (sqrt(abs(w1.x - w2.x)*abs(w1.x - w2.x)) < 400 && sqrt(abs(w1.z - w2.z)*abs(w1.z - w2.z)) <  400) {
-					personBuf.x += w2.x;
-					personBuf.y += w2.y;
-					personBuf.z += w2.z;
+					personBuf.wx += w2.x;
+					personBuf.wy += w2.y;
+					personBuf.wz += w2.z;
+					personBuf.x += r1.x;
+					personBuf.y += r1.y;
+					personBuf.z += r1.d;
 					personBuf.num += 1;
 					personBuf.height += r2.height;
 					personBuf.width += r2.width;
@@ -102,6 +111,9 @@ int main(){
 
 			if (isId.find(r1.id) == isId.end() && personBuf.z / 4000 * personBuf.height > 30) {
 				isId.insert(r1.id);
+				personBuf.wx /= personBuf.num;
+				personBuf.wy /= personBuf.num;
+				personBuf.wz /= personBuf.num;
 				personBuf.x /= personBuf.num;
 				personBuf.y /= personBuf.num;
 				personBuf.z /= personBuf.num;
@@ -115,7 +127,7 @@ int main(){
 		for (auto p : people) {
 			for (auto t = track_data.begin(); t != track_data.end(); ++t){
 				personInf tmp = t->back();
-				if (sqrt(abs(tmp.x - p.x)*abs(tmp.x - p.x)) < 30 && sqrt(abs(tmp.z - p.z)*abs(tmp.z - p.z)) < 100) {
+				if (sqrt(abs(tmp.wx - p.wx)*abs(tmp.wx - p.wx)) < 30 && sqrt(abs(tmp.wz - p.wz)*abs(tmp.wz - p.wz)) < 100) {
 					t->push_back(p);
 					isadd = true;
 				}
@@ -159,15 +171,15 @@ int main(){
 		}
 
 		for (auto r : people) {
-			w1.x = r.x;
-			w1.y = r.y;
-			w1.z = r.z;
-			sensor.worldToCameraPoint(&w1, &c1);
-			cv::rectangle(paintMat, Point(c1.x*rate - r.width*rate / 2, c1.y*rate - r.height*rate / 2), Point(c1.x*rate + r.width*rate / 2, c1.y*rate + r.height*rate / 2), Scalar(136, 150, 0), 2);
+			//w1.x = r.x;
+			//w1.y = r.y;
+			//w1.z = r.z;
+			//sensor.worldToCameraPoint(&w1, &c1);
+			cv::rectangle(paintMat, Point(r.x*rate - r.width*rate / 2, r.y*rate - r.height*rate / 2), Point(r.x*rate + r.width*rate / 2, r.y*rate + r.height*rate / 2), Scalar(136, 150, 0), 2);
 			sprintf_s(str, "%4d", (int)r.id);
-			cv::putText(paintMat, str, cv::Point(c1.x*rate, c1.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
+			cv::putText(paintMat, str, cv::Point(r.x*rate, r.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
 
-			myfile << r.x << "," << r.y << "," << r.z << "," << r.frame << "\n";
+			//myfile << r.x << "," << r.y << "," << r.z << "," << r.frame << "\n";
 		}
 		//for (auto r : people) {
 		//	cameraPoint.x = r.x;
