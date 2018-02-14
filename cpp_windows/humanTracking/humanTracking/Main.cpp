@@ -52,7 +52,7 @@ int main(){
 	std::random_device rnd;
 
 	ofstream myfile;
-	myfile.open("sample.csv");
+	myfile.open("../../../data/sample.csv");
 	myfile << "frame" << "," << "id" << "," << "wx" << "," << "wy" << "," << "wz" << "\n";
 
 	std::vector<PXCPoint3DF32> vertices;
@@ -128,7 +128,7 @@ int main(){
 		for (auto p : people) {
 			for (auto t = track_data.begin(); t != track_data.end(); ++t){
 				personInf tmp = t->back();
-				if (sqrt(abs(tmp.wx - p.wx)*abs(tmp.wx - p.wx)) < 300 && sqrt(abs(tmp.wz - p.wz)*abs(tmp.wz - p.wz)) < 300) {
+				if (sqrt(abs(tmp.wx - p.wx)*abs(tmp.wx - p.wx)) < 500 && sqrt(abs(tmp.wz - p.wz)*abs(tmp.wz - p.wz)) < 500) {
 					t->push_back(p);
 					isadd = true;
 				}
