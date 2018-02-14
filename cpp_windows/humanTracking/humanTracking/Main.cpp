@@ -52,7 +52,8 @@ int main(){
 	std::random_device rnd;
 
 	ofstream myfile;
-	myfile.open("example.csv");
+	myfile.open("sample.csv");
+	myfile << "frame" << "," << "id" << "," << "wx" << "," << "wy" << "," << "wz" << "\n";
 
 	std::vector<PXCPoint3DF32> vertices;
 	vertices.resize(DEPTH_HEIGHT*DEPTH_WIDTH);
@@ -171,15 +172,11 @@ int main(){
 		}
 
 		for (auto r : people) {
-			//w1.x = r.x;
-			//w1.y = r.y;
-			//w1.z = r.z;
-			//sensor.worldToCameraPoint(&w1, &c1);
 			cv::rectangle(paintMat, Point(r.x*rate - r.width*rate / 2, r.y*rate - r.height*rate / 2), Point(r.x*rate + r.width*rate / 2, r.y*rate + r.height*rate / 2), Scalar(136, 150, 0), 2);
 			sprintf_s(str, "%4d", (int)r.id);
 			cv::putText(paintMat, str, cv::Point(r.x*rate, r.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
 
-			//myfile << r.x << "," << r.y << "," << r.z << "," << r.frame << "\n";
+			myfile << r.frame << "," << (int)r.id << "," << r.wx << "," << r.wy << "," << r.wz  << "," << "\n";
 		}
 		//for (auto r : people) {
 		//	cameraPoint.x = r.x;
