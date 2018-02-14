@@ -45,9 +45,9 @@ if __name__ == '__main__':
     # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(3,3))
     # fgbg = cv2.createBackgroundSubtractorMOG2()
 
-    # p = [np.pi/4, 0, 0]
-    p = [5*np.pi/18, 0, 0]
-    t = [0, -2900, 0]
+    p = [-5*np.pi/18, 0, 0]
+    # p = [5*np.pi/18, 0, 0]
+    t = [0, -2800, 0]
     M = affineM(p, t)
     print(M)
     # history_track_data = []
