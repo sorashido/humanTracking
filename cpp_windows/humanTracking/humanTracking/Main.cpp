@@ -96,7 +96,7 @@ int main(){
 				c2.y = r2.cy;
 				c2.z = r2.cz;
 				sensor.cameraToWorldPoint(&c2, &w2);
-				if (sqrt(abs(w1.x - w2.x)*abs(w1.x - w2.x)) < 400 && sqrt(abs(w1.z - w2.z)*abs(w1.z - w2.z)) <  400) {
+				if (sqrt(abs(w1.x - w2.x)*abs(w1.x - w2.x)) < 300 && sqrt(abs(w1.z - w2.z)*abs(w1.z - w2.z)) <  300) {
 					personBuf.wx += w2.x;
 					personBuf.wy += w2.y;
 					personBuf.wz += w2.z;
@@ -206,7 +206,7 @@ int main(){
 
 		sensor.frameRelease();
 	}
-	myfile.close();
+	//myfile.close();
 
 	return 0;
 }

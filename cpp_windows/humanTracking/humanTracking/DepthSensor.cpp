@@ -50,10 +50,16 @@ void DepthSensor::getFrame(int frame, cv::Mat* depthMat, PXCPoint3DF32* vertices
 	ConvertPXCImageToOpenCVMat(sample->depth, depthMat);
 }
 
-const static cv::Mat m_perspectiveMat = (cv::Mat_<double>(4, 4) << 1.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
-													  0.00000000e+00, 7.07106781e-01, -7.07106781e-01, 0.00000000e+00,
-													  0.00000000e+00, 7.07106781e-01, 7.07106781e-01, 0.00000000e+00,
-													  0.00000000e+00, 2.47487373e+03, -2.47487373e+03, 1.00000000e+00);
+//const static cv::Mat m_perspectiveMat = (cv::Mat_<double>(4, 4) << 1.00000000e+00, 0.00000000e+00, 0.00000000e+00, 0.00000000e+00,
+//																	0.00000000e+00, 6.42787610e-01, -7.66044443e-01, 0.00000000e+00,
+//																	0.00000000e+00, 7.66044443e-01, 6.42787610e-01, 0.00000000e+00,
+//																	0.00000000e+00, 1.79980531e+03, -2.14492444e+03, 1.00000000e+00);
+
+const static cv::Mat m_perspectiveMat = (cv::Mat_<double>(4, 4) << 1, 0, 0, 0,
+	0, 0.64278761, -0.76604444, 0,
+	0, 0.76604444, 0.64278761, 0,
+	0, 0, 0, 1);
+
 static cv::Mat localMat(4, 1, CV_64FC1);
 static cv::Mat worldMat(4, 1, CV_64FC1);
 void DepthSensor::cameraToWorldPoint(Point3D *camera, Point3D *world) {
