@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     p = [-5*np.pi/18, 0, 0]
     # p = [5*np.pi/18, 0, 0]
-    t = [0, -2800, 0]
+    t = [0, 0, 0]
     M = affineM(p, t)
     print(M)
     # history_track_data = []
