@@ -176,7 +176,7 @@ int main(){
 			sprintf_s(str, "%4d", (int)r.id);
 			cv::putText(paintMat, str, cv::Point(r.x*rate, r.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
 
-			myfile << r.frame << "," << (int)r.id << "," << r.wx << "," << r.wy << "," << r.wz  << "," << "\n";
+			myfile << r.frame << "," << (int)r.id << "," << r.wx << "," << r.wy << "," << r.wz  << "\n";
 		}
 		//for (auto r : people) {
 		//	cameraPoint.x = r.x;
