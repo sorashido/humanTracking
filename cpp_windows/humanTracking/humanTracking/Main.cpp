@@ -59,6 +59,7 @@ int main(){
 	vertices.resize(DEPTH_HEIGHT*DEPTH_WIDTH);
 	
 	// Streaming loop
+	int human_num = 0;
 	for (int i = 6500; i < 200000; i += 1) {
 		sensor.getFrame(i, &depthMat, &vertices[0]);
 
@@ -68,7 +69,7 @@ int main(){
 
 		//
 		Point3D c1, c2, w1, w2;
-		int id = 0;
+		//int id = 0;
 		people.clear();
 		std::set<int>isId;
 
@@ -88,7 +89,7 @@ int main(){
 			personBuf.height = r1.height;
 			personBuf.width = r1.width;
 			personBuf.frame = i;
-			personBuf.id = id;
+			personBuf.id = 0;
 			personBuf.num = 1;
 			for (auto r2 : label.results) {
 				if (r1.id == r2.id)continue;
@@ -119,7 +120,7 @@ int main(){
 				personBuf.y /= personBuf.num;
 				personBuf.z /= personBuf.num;
 				people.push_back(personBuf);
-				id++;
+				//id++;
 			}
 		}
 
@@ -128,19 +129,23 @@ int main(){
 		for (auto p : people) {
 			for (auto t = track_data.begin(); t != track_data.end(); ++t){
 				personInf tmp = t->back();
-				if (sqrt(abs(tmp.wx - p.wx)*abs(tmp.wx - p.wx)) < 500 && sqrt(abs(tmp.wz - p.wz)*abs(tmp.wz - p.wz)) < 500) {
+				if (sqrt(abs(tmp.wx - p.wx)*abs(tmp.wx - p.wx)) < 500 && sqrt(abs(tmp.wz - p.wz)*abs(tmp.wz - p.wz)) < 500 && (p.frame - tmp.frame) < 10) {
+					p.id = t->back().id;
 					t->push_back(p);
 					isadd = true;
 				}
 			}
-			for (auto t : track_data) {
-				if (i - t.back().frame > 100) {
-					t.clear();
-				}
-			}
+
+			//for (auto t : track_data) {
+			//	if (i - t.back().frame > 100) {
+			//		t.clear();
+			//	}
+			//}
 
 			if (!isadd) {
 				std::vector<personInf> per;
+				p.id = human_num;
+				human_num += 1;
 				per.push_back(p);
 				track_data.push_back(per);
 			}
@@ -159,7 +164,6 @@ int main(){
 		cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(244, 67, 57), 2, CV_AA);
 
 		sprintf_s(str, "%4d, %4d, %4d", (int)vertices[m_y/rate * 320 + m_x/rate].x, (int)vertices[m_y/rate * 320 + m_x/rate].y, (int)vertices[m_y/rate * 320 + m_x/rate].z);
-		//sprintf_s(str, "%4d", (int)depthMat.at<short>(m_y/rate, m_x/rate));
 		cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(7, 193, 255), 2, CV_AA);
 
 		switch (view_mode) {
@@ -171,30 +175,20 @@ int main(){
 			break;
 		}
 
-		for (auto r : people) {
-			cv::rectangle(paintMat, Point(r.x*rate - r.width*rate / 2, r.y*rate - r.height*rate / 2), Point(r.x*rate + r.width*rate / 2, r.y*rate + r.height*rate / 2), Scalar(136, 150, 0), 2);
-			sprintf_s(str, "%4d", (int)r.id);
-			cv::putText(paintMat, str, cv::Point(r.x*rate, r.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
-
-			myfile << r.frame << "," << (int)r.id << "," << r.wx << "," << r.wy << "," << r.wz  << "\n";
-		}
-		//for (auto r : people) {
-		//	cameraPoint.x = r.x;
-		//	cameraPoint.y = r.y;
-		//	cameraPoint.z = r.z;
-		//	sensor.cameraToWorldPoint(&cameraPoint, &worldPoint);
-		//	cv::circle(trackMat, cv::Point(worldPoint.x * rate, -worldPoint.z * 480 / 4000 + 650), 5, cv::Scalar(54, 67, 244));
-		//}
 		int color = 0;
 		for (auto t : track_data) {
+			// draw now frame data
+			personInf now_p = t.back();
+			cv::rectangle(paintMat, Point(now_p.x*rate - now_p.width*rate / 2, now_p.y*rate - now_p.height*rate / 2), Point(now_p.x*rate + now_p.width*rate / 2, now_p.y*rate + now_p.height*rate / 2), Scalar(136, 150, 0), 2);
+			sprintf_s(str, "%4d", (int)now_p.id);
+			cv::putText(paintMat, str, cv::Point(now_p.x*rate, now_p.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
+			myfile << now_p.frame << "," << (int)now_p.id << "," << now_p.wx << "," << now_p.wy << "," << now_p.wz << "\n";
+
+			// draw track data
 			for (auto r : t) {
 				if (i - r.frame < 40) {
 					cv::circle(trackMat, cv::Point(r.x * rate, -r.z * 480 / 4000 + 650), 5, cv::Scalar(color%255, 67, 244));
-					//sprintf_s(str, "%4d", (int)color/30);
-					//cv::putText(trackMat, str, cv::Point(r.x * rate, -r.z * 480 / 4000 + 650), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
 				}
-				//sprintf_s(str, "%4d", (int)r.id);
-				//cv::putText(trackMat, str, cv::Point(r.x * rate, -r.z * 480 / 4000 + 650), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
 			}
 			color += 30;
 		}
