@@ -179,10 +179,12 @@ int main(){
 		for (auto t : track_data) {
 			// draw now frame data
 			personInf now_p = t.back();
-			cv::rectangle(paintMat, Point(now_p.x*rate - now_p.width*rate / 2, now_p.y*rate - now_p.height*rate / 2), Point(now_p.x*rate + now_p.width*rate / 2, now_p.y*rate + now_p.height*rate / 2), Scalar(136, 150, 0), 2);
-			sprintf_s(str, "%4d", (int)now_p.id);
-			cv::putText(paintMat, str, cv::Point(now_p.x*rate, now_p.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
-			myfile << now_p.frame << "," << (int)now_p.id << "," << now_p.wx << "," << now_p.wy << "," << now_p.wz << "\n";
+			if (now_p.frame == i) {
+				cv::rectangle(paintMat, Point(now_p.x*rate - now_p.width*rate / 2, now_p.y*rate - now_p.height*rate / 2), Point(now_p.x*rate + now_p.width*rate / 2, now_p.y*rate + now_p.height*rate / 2), Scalar(136, 150, 0), 2);
+				sprintf_s(str, "%4d", (int)now_p.id);
+				cv::putText(paintMat, str, cv::Point(now_p.x*rate, now_p.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
+				myfile << now_p.frame << "," << (int)now_p.id << "," << now_p.wx << "," << now_p.wy << "," << now_p.wz << "\n";
+			}
 
 			// draw track data
 			for (auto r : t) {
