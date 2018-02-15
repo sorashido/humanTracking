@@ -33,13 +33,13 @@ def addAgent(position, velocity):
     sim.setAgentPrefVelocity(a, velocity)
     agents.append(a)
 
-for i in range(10):
-    addAgent((-10, 5 - i), (1, 0))
+for i in range(20):
+    addAgent((-10, 5 - i * 0.5), (1, 0))
 
-for i in range(10):
-    addAgent((10, 5 - i), (-1, 0))
+for i in range(20):
+    addAgent((10, 5 - i * 0.5), (-1, 0))
 
-cmap=plt.get_cmap("tab20")
+cmap=plt.get_cmap("tab10")
 def plot(data):
     sim.doStep()
     positions = ['(%5.3f, %5.3f)' % sim.getAgentPosition(agent_no)
@@ -49,7 +49,8 @@ def plot(data):
 
     for agent_no in agents:
         x, y = sim.getAgentPosition(agent_no)
-        plt.plot(x, y, color=cmap(agent_no), marker="*", markersize=3)
+        c = 1 if agent_no < 20 else 0
+        plt.plot(x, y, color=cmap(c), marker="*", markersize=3)
 
     for i in range(sim.getNumObstacleVertices()):
         x, y = sim.getObstacleVertex(i)
