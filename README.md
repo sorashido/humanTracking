@@ -1,7 +1,15 @@
-# humanTracking
+# peopleFlow
 human detect & tracking by depth camera
 
-## detect
+## tracking
+### human detect
 - region growing
 
-## tracking
+### tracking
+
+## modeling
+### analyzing
+- plot data
+
+### rvo_sample
+- using rvo, opencv
