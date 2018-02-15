@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 import rvo2
-import cv2
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 sim = rvo2.PyRVOSimulator(1/60., 1.5, 5, 1.5, 2, 0.4, 2)
 
@@ -27,8 +28,24 @@ print('Simulation has %i agents and %i obstacle vertices in it.' %
 
 print('Running simulation')
 
-for step in range(20):
+fig = plt.figure()
+plt.xlim(0, 1.0)
+plt.ylim(0, 1.0)
+
+def plot(data):
     sim.doStep()
     positions = ['(%5.3f, %5.3f)' % sim.getAgentPosition(agent_no)
                  for agent_no in (a0, a1, a2, a3)]
-    print('step=%2i  t=%.3f  %s' % (step, sim.getGlobalTime(), '  '.join(positions)))
+
+    print('t=%.3f  %s' % (sim.getGlobalTime(), '  '.join(positions)))
+
+    for agent_no in (a0, a1, a2, a3):
+        x, y = sim.getAgentPosition(agent_no)
+        plt.plot(x, y, "ro")
+    # ims.append(im)
+
+ani = animation.FuncAnimation(fig, plot, interval=100)
+plt.show()
+
+# for i in range(20):
+#     plot("data")
