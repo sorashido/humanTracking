@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rvo2
+import cv2
 
 sim = rvo2.PyRVOSimulator(1/60., 1.5, 5, 1.5, 2, 0.4, 2)
 
@@ -28,8 +29,6 @@ print('Running simulation')
 
 for step in range(20):
     sim.doStep()
-
     positions = ['(%5.3f, %5.3f)' % sim.getAgentPosition(agent_no)
                  for agent_no in (a0, a1, a2, a3)]
     print('step=%2i  t=%.3f  %s' % (step, sim.getGlobalTime(), '  '.join(positions)))
-
