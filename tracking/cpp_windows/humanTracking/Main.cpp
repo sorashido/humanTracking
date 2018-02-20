@@ -51,9 +51,11 @@ int main(){
 
 	std::random_device rnd;
 
+#ifdef LOG
 	ofstream myfile;
 	myfile.open("../../../data/sample.csv");
 	myfile << "frame" << "," << "id" << "," << "wx" << "," << "wy" << "," << "wz" << "\n";
+#endif
 
 	std::vector<PXCPoint3DF32> vertices;
 	vertices.resize(DEPTH_HEIGHT*DEPTH_WIDTH);
@@ -179,7 +181,9 @@ int main(){
 				cv::rectangle(paintMat, Point(now_p.x*rate - now_p.width*rate / 2, now_p.y*rate - now_p.height*rate / 2), Point(now_p.x*rate + now_p.width*rate / 2, now_p.y*rate + now_p.height*rate / 2), Scalar(136, 150, 0), 2);
 				sprintf_s(str, "%4d", (int)now_p.id);
 				cv::putText(paintMat, str, cv::Point(now_p.x*rate, now_p.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
+#ifdef LOG
 				myfile << now_p.frame << "," << (int)now_p.id << "," << now_p.wx << "," << now_p.wy << "," << now_p.wz << "\n";
+#endif
 			}
 
 			// draw track data
@@ -197,7 +201,9 @@ int main(){
 
 		sensor.frameRelease();
 	}
-
+#ifdef LOG
+	myfile.close()
+#endif
 	return 0;
 }
 
