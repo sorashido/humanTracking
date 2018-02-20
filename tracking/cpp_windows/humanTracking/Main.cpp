@@ -97,7 +97,7 @@ int main(){
 				c2.y = r2.cy;
 				c2.z = r2.cz;
 				sensor.cameraToWorldPoint(&c2, &w2);
-				if (sqrt(abs(w1.x - w2.x)*abs(w1.x - w2.x)) < 300 && sqrt(abs(w1.z - w2.z)*abs(w1.z - w2.z)) <  300) {
+				if (sqrt(abs(w1.x - w2.x)*abs(w1.x - w2.x)) < 300 && sqrt(abs(w1.z - w2.z)*abs(w1.z - w2.z)) < 300) {
 					personBuf.wx += w2.x;
 					personBuf.wy += w2.y;
 					personBuf.wz += w2.z;
@@ -127,7 +127,7 @@ int main(){
 		bool isadd = false;
 		std::vector<personInf> tt;
 		for (auto p : people) {
-			for (auto t = track_data.begin(); t != track_data.end(); ++t){
+			for (auto t = track_data.begin(); t != track_data.end(); ++t) {
 				personInf tmp = t->back();
 				if (sqrt(abs(tmp.wx - p.wx)*abs(tmp.wx - p.wx)) < 500 && sqrt(abs(tmp.wz - p.wz)*abs(tmp.wz - p.wz)) < 500 && (p.frame - tmp.frame) < 10) {
 					p.id = t->back().id;
@@ -135,12 +135,6 @@ int main(){
 					isadd = true;
 				}
 			}
-
-			//for (auto t : track_data) {
-			//	if (i - t.back().frame > 100) {
-			//		t.clear();
-			//	}
-			//}
 
 			if (!isadd) {
 				std::vector<personInf> per;
@@ -157,13 +151,13 @@ int main(){
 		cv::cvtColor(depthTmp, paintMat, CV_GRAY2BGR);
 		const static int rate = 2.0;
 		cv::resize(paintMat, paintMat, cv::Size(), rate, rate);
-		
+
 		// draw frame
 		char str[200];
 		sprintf_s(str, "%4d", i);
 		cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(244, 67, 57), 2, CV_AA);
 
-		sprintf_s(str, "%4d, %4d, %4d", (int)vertices[m_y/rate * 320 + m_x/rate].x, (int)vertices[m_y/rate * 320 + m_x/rate].y, (int)vertices[m_y/rate * 320 + m_x/rate].z);
+		sprintf_s(str, "%4d, %4d, %4d", (int)vertices[m_y / rate * 320 + m_x / rate].x, (int)vertices[m_y / rate * 320 + m_x / rate].y, (int)vertices[m_y / rate * 320 + m_x / rate].z);
 		cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(7, 193, 255), 2, CV_AA);
 
 		switch (view_mode) {
@@ -175,7 +169,9 @@ int main(){
 			break;
 		}
 
-		int color = 0;
+		cv::Scalar color[10] = {cv::Scalar(244, 67, 54), cv::Scalar(63, 81, 181), cv::Scalar(205, 220, 57),
+								cv::Scalar(255, 152, 0), cv::Scalar(121, 85, 72), cv::Scalar(233, 30, 99),
+								cv::Scalar(156, 39, 176), cv::Scalar(33, 150, 243), cv::Scalar(255, 235, 59), cv::Scalar(255, 255, 255)};
 		for (auto t : track_data) {
 			// draw now frame data
 			personInf now_p = t.back();
@@ -189,10 +185,9 @@ int main(){
 			// draw track data
 			for (auto r : t) {
 				if (i - r.frame < 40) {
-					cv::circle(trackMat, cv::Point(r.x * rate, -r.z * 480 / 4000 + 650), 5, cv::Scalar(color%255, 67, 244));
+					cv::circle(trackMat, cv::Point(r.x * rate, -r.z * 480 / 4000 + 650), 5, color[now_p.id%10]);
 				}
 			}
-			color += 30;
 		}
 		cv::imshow("track", trackMat);
 		cv::imshow(WINDOWNAME, paintMat);
@@ -202,7 +197,6 @@ int main(){
 
 		sensor.frameRelease();
 	}
-	//myfile.close();
 
 	return 0;
 }
