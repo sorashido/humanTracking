@@ -62,7 +62,7 @@ int main(){
 	
 	// Streaming loop
 	int human_num = 0;
-	for (int i = 6500; i < 200000; i += 1) {
+	for (int i = 9000; i < 200000; i += 1) {
 		sensor.getFrame(i, &depthMat, &vertices[0]);
 
 		label.labeling(depthMat, &vertices[0]);
@@ -131,7 +131,8 @@ int main(){
 		for (auto p : people) {
 			for (auto t = track_data.begin(); t != track_data.end(); ++t) {
 				personInf tmp = t->back();
-				if (sqrt(abs(tmp.wx - p.wx)*abs(tmp.wx - p.wx)) < 500 && sqrt(abs(tmp.wz - p.wz)*abs(tmp.wz - p.wz)) < 500 && (p.frame - tmp.frame) < 10) {
+				double rate = sqrt(p.x*p.x + p.z*p.z)/5;
+				if (sqrt(abs(tmp.wx - p.wx)*abs(tmp.wx - p.wx) + abs(tmp.wz - p.wz)*abs(tmp.wz - p.wz)) < rate && (p.frame - tmp.frame) < 10) {
 					p.id = t->back().id;
 					t->push_back(p);
 					isadd = true;
@@ -174,13 +175,17 @@ int main(){
 		cv::Scalar color[10] = {cv::Scalar(244, 67, 54), cv::Scalar(63, 81, 181), cv::Scalar(205, 220, 57),
 								cv::Scalar(255, 152, 0), cv::Scalar(121, 85, 72), cv::Scalar(233, 30, 99),
 								cv::Scalar(156, 39, 176), cv::Scalar(33, 150, 243), cv::Scalar(255, 235, 59), cv::Scalar(255, 255, 255)};
+
+		for (auto now_p : people) {
+			cv::rectangle(paintMat, Point(now_p.x*rate - now_p.width*rate / 2, now_p.y*rate - now_p.height*rate / 2), Point(now_p.x*rate + now_p.width*rate / 2, now_p.y*rate + now_p.height*rate / 2), Scalar(136, 150, 0), 2);
+		}
 		for (auto t : track_data) {
 			// draw now frame data
 			personInf now_p = t.back();
 			if (now_p.frame == i) {
-				cv::rectangle(paintMat, Point(now_p.x*rate - now_p.width*rate / 2, now_p.y*rate - now_p.height*rate / 2), Point(now_p.x*rate + now_p.width*rate / 2, now_p.y*rate + now_p.height*rate / 2), Scalar(136, 150, 0), 2);
-				sprintf_s(str, "%4d", (int)now_p.id);
-				cv::putText(paintMat, str, cv::Point(now_p.x*rate, now_p.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
+				//cv::rectangle(paintMat, Point(now_p.x*rate - now_p.width*rate / 2, now_p.y*rate - now_p.height*rate / 2), Point(now_p.x*rate + now_p.width*rate / 2, now_p.y*rate + now_p.height*rate / 2), Scalar(136, 150, 0), 2);
+				//sprintf_s(str, "%4d", (int)now_p.id);
+				//cv::putText(paintMat, str, cv::Point(now_p.x*rate, now_p.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
 #ifdef LOG
 				myfile << now_p.frame << "," << (int)now_p.id << "," << now_p.wx << "," << now_p.wy << "," << now_p.wz << "\n";
 #endif
