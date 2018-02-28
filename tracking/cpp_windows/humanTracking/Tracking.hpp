@@ -1,6 +1,6 @@
 //#pragma once
 //
-//class Labeling {
+//class Detect {
 //public:
 //	typedef struct {
 //		double x;	//x average
@@ -12,9 +12,9 @@
 //		int id;		   //id
 //	}person;
 //
-//	std::vector<person> results;//labeling
+//	std::vector<person> results;//Detect
 //								  //std::set<int>isId;
-//	void labeling(cv::Mat depth);//
+//	void Detect(cv::Mat depth);//
 //								 //void drawResult(const std::string&winname);
 //private:
 //	int id;

@@ -125,13 +125,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DepthSensor.cpp" />
-    <ClCompile Include="Labeling.cpp" />
+    <ClCompile Include="Detecting.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Tracking.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DepthSensor.hpp" />
-    <ClInclude Include="Labeling.hpp" />
+    <ClInclude Include="Detecting.hpp" />
     <ClInclude Include="Tracking.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
