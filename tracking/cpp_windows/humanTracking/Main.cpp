@@ -45,6 +45,7 @@ int main(){
 	
 	// Streaming loop
 	int people_num = 0;
+	bool stop = false;
 	for (int i = 9000; i < 200000; i += 1) {
 		sensor.getFrame(i, &depthMat, &vertices[0]);
 
@@ -91,7 +92,7 @@ int main(){
 		sprintf_s(str, "%4d, %4d, %4d", (int)vertices[m_y / rate * 320 + m_x / rate].x, (int)vertices[m_y / rate * 320 + m_x / rate].y, (int)vertices[m_y / rate * 320 + m_x / rate].z);
 		cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(7, 193, 255), 2, CV_AA);
 
-		cv::Scalar color[10] = {cv::Scalar(244, 67, 54), cv::Scalar(63, 81, 181), cv::Scalar(205, 220, 57),
+		const static cv::Scalar color[10] = {cv::Scalar(244, 67, 54), cv::Scalar(63, 81, 181), cv::Scalar(205, 220, 57),
 								cv::Scalar(255, 152, 0), cv::Scalar(121, 85, 72), cv::Scalar(233, 30, 99),
 								cv::Scalar(156, 39, 176), cv::Scalar(33, 150, 243), cv::Scalar(255, 235, 59), cv::Scalar(255, 255, 255)};
 
@@ -118,6 +119,9 @@ int main(){
 		cv::imshow(WINDOWNAME, paintMat);
 		int key = cv::waitKey(10);
 		if (key == 'q') break;
+		else if (key == 32) stop = !stop;
+
+		if (stop)i -= 1;
 
 		sensor.frameRelease();
 	}

@@ -72,13 +72,13 @@ void Detect::detectPeople(DepthSensor* sensor, int frame, cv::Mat depth, PXCPoin
 		}
 	}
 
-	//
+	// find people
 	Point3D c1, c2, w1, w2;
 	std::set<int>isId;
 
 	for (auto r1 : results) {
-		c1.x = r1.cx;// vertices[r1.y * 320 + r1.x].x;
-		c1.y = r1.cy;// vertices[r1.y * 320 + r1.x].y;
+		c1.x = r1.cx;
+		c1.y = r1.cy;
 		c1.z = r1.cz;
 		sensor->cameraToWorldPoint(&c1, &w1);
 
