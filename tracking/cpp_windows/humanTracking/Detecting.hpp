@@ -2,7 +2,6 @@
 #define _Detect_
 
 #include <opencv2/core/core.hpp>
-#include "pxcsensemanager.h"
 #include "DepthSensor.hpp"
 
 // parameter

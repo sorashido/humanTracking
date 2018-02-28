@@ -5,6 +5,7 @@
 #include <random>
 #include "pxcsensemanager.h"
 #include "Detecting.hpp"
+#include "Tracking.hpp"
 #include "DepthSensor.hpp"
 
 using namespace std;
@@ -20,7 +21,8 @@ void onMouse(int event, int x, int y, int flags, void *param = NULL) {
 int main(){
 	DepthSensor sensor(L"D:\\track_data\\No6_out2017-11-03 6-08-56.rssdk");
 
-	Detect detect;
+	Detect detector;
+	Track tracker;
 	cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);
 
 	std::vector<personInf> people;//1 frame
@@ -44,40 +46,18 @@ int main(){
 	vertices.resize(DEPTH_HEIGHT*DEPTH_WIDTH);
 	
 	// Streaming loop
-	int people_num = 0;
 	bool stop = false;
 	for (int i = 9000; i < 200000; i += 1) {
 		sensor.getFrame(i, &depthMat, &vertices[0]);
 
 		people.clear();
-		detect.detectPeople(&sensor, i, depthMat, &vertices[0], &people);
+		detector.detectPeople(&sensor, i, depthMat, &vertices[0], &people);
 
 		// tracking
-		Mat trackMat = Mat::zeros(cv::Size(640, 480), CV_8UC3);
-
-		bool isadd = false;
-		std::vector<personInf> tt;
-		for (auto p : people) {
-			for (auto t = track_data.begin(); t != track_data.end(); ++t) {
-				personInf tmp = t->back();
-				double rate = sqrt(p.wx*p.wx + p.wz*p.wz)/5;
-				if (sqrt(abs(tmp.wx - p.wx)*abs(tmp.wx - p.wx) + abs(tmp.wz - p.wz)*abs(tmp.wz - p.wz)) < rate && (p.frame - tmp.frame) < 10) {
-					p.id = t->back().id;
-					t->push_back(p);
-					isadd = true;
-				}
-			}
-
-			if (!isadd) {
-				std::vector<personInf> per;
-				p.id = people_num;
-				people_num += 1;
-				per.push_back(p);
-				track_data.push_back(per);
-			}
-		}
+		tracker.trackPeople(&people, &track_data);
 
 		// drawing
+		Mat trackMat = Mat::zeros(cv::Size(640, 480), CV_8UC3);
 		cv::Mat depthTmp, paintMat;
 		depthMat.convertTo(depthTmp, CV_8U, 255.0f / 8000.0f, 0);
 		cv::cvtColor(depthTmp, paintMat, CV_GRAY2BGR);
@@ -115,8 +95,10 @@ int main(){
 				}
 			}
 		}
+
 		cv::imshow("track", trackMat);
 		cv::imshow(WINDOWNAME, paintMat);
+		
 		int key = cv::waitKey(10);
 		if (key == 'q') break;
 		else if (key == 32) stop = !stop;
