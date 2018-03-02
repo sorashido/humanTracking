@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Tracking.hpp"
 
 void Track::trackPeople(std::vector<personInf>* people, std::vector<std::vector<personInf>>* track_data)
@@ -20,6 +21,10 @@ void Track::trackPeople(std::vector<personInf>* people, std::vector<std::vector<
 			people_num += 1;
 			per.push_back(p);
 			track_data->push_back(per);
+		}
+
+		if (track_data->size() > 100) {
+			track_data->erase(track_data->begin());
 		}
 	}
 }

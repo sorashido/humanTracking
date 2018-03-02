@@ -36,12 +36,9 @@ int main(){
 	Detect detector;
 	Track tracker;
 
-	static Point3D cameraPoint, worldPoint;
-
 	// window setting
 	cv::namedWindow(WINDOWNAME);
 	cv::setMouseCallback(WINDOWNAME, onMouse);
-	int view_mode = 0;
 
 #ifdef LOG
 	ofstream myfile;
