@@ -11,16 +11,13 @@
 using namespace std;
 using namespace cv;
 
-//#define LOG
-
+void drawFrame(int* frame);
 int m_x = 0, m_y = 0, m_event = 0;
 void onMouse(int event, int x, int y, int flags, void *param = NULL) {
 	m_event = event;
 	m_x = x;
 	m_y = y;
 }
-
-void drawFrame(int* frame);
 
 cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);
 std::vector<PXCPoint3DF32> vertices;
@@ -29,6 +26,11 @@ std::vector<personInf> people;
 std::vector<std::vector<personInf>> track_data;
 
 const static std::string WINDOWNAME = "Depth";
+
+#define LOG
+#ifdef LOG
+	ofstream myfile;
+#endif
 
 int main(){
 	DepthSensor sensor(L"D:\\track_data\\No6_out2017-11-03 6-08-56.rssdk");
@@ -41,7 +43,6 @@ int main(){
 	cv::setMouseCallback(WINDOWNAME, onMouse);
 
 #ifdef LOG
-	ofstream myfile;
 	myfile.open("../../../data/sample.csv");
 	myfile << "frame" << "," << "id" << "," << "wx" << "," << "wy" << "," << "wz" << "\n";
 #endif
@@ -50,7 +51,7 @@ int main(){
 	
 	// Streaming loop
 	bool stop = false;
-	for (int i = 9000; i < 200000; i += 1) {
+	for (int i = 0;; i += 1) {
 		sensor.getFrame(i, &depthMat, &vertices[0]);
 
 		people.clear();
@@ -58,8 +59,6 @@ int main(){
 
 		// tracking
 		tracker.trackPeople(&people, &track_data);
-
-
 
 		// drawing
 		drawFrame(&i);
@@ -72,7 +71,7 @@ int main(){
 		sensor.frameRelease();
 	}
 #ifdef LOG
-	myfile.close()
+	myfile.close();
 #endif
 	return 0;
 }
