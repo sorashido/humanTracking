@@ -102,6 +102,8 @@ ENV/
 
 .idea
 
+data/
+
 # cmake
 CMakeCache.txt
 CMakeFiles

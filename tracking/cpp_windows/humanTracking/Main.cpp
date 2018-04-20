@@ -22,12 +22,13 @@ void onMouse(int event, int x, int y, int flags, void *param = NULL) {
 cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);
 std::vector<PXCPoint3DF32> vertices;
 
-std::vector<personInf> people;
-std::vector<std::vector<personInf>> track_data;
+//std::vector<personInf> people;
+std::vector<detection> detections;
+std::vector<std::vector<detection>> track_data;
 
 const static std::string WINDOWNAME = "Depth";
 
-#define LOG
+//#define LOG
 #ifdef LOG
 	ofstream myfile;
 #endif
@@ -54,11 +55,12 @@ int main(){
 	for (int i = 0;; i += 1) {
 		sensor.getFrame(i, &depthMat, &vertices[0]);
 
-		people.clear();
-		detector.detectPeople(&sensor, i, depthMat, &vertices[0], &people);
+		// detections
+		detections.clear();
+		detector.detectPeople(&sensor, i, depthMat, &vertices[0], &detections);
 
 		// tracking
-		tracker.trackPeople(&people, &track_data);
+		tracker.trackPeople(&detections, &track_data);
 
 		// drawing
 		drawFrame(&i);
@@ -98,7 +100,7 @@ void drawFrame(int* frame) {
 
 	for (auto t : track_data) {
 		// now data
-		personInf now_p = t.back();
+		detection now_p = t.back();
 		if (now_p.frame == *frame) {
 			cv::rectangle(paintMat, Point(now_p.sx*rate - now_p.width*rate / 2, now_p.sy*rate - now_p.height*rate / 2), Point(now_p.sx*rate + now_p.width*rate / 2, now_p.sy*rate + now_p.height*rate / 2), Scalar(136, 150, 0), 2);
 			sprintf_s(str, "%4d", (int)now_p.id);

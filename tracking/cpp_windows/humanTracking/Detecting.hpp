@@ -34,7 +34,7 @@ typedef struct {
 	int num;
 	int frame;
 	int id;
-}personInf;
+}detection;
 
 using namespace labelParam;
 
@@ -55,7 +55,7 @@ public:
 
 	std::vector<labelInf> results;//Detect
 	//std::set<int>isId;
-	void detectPeople(DepthSensor* sensor, int frame, cv::Mat depth, PXCPoint3DF32* vertices, std::vector<personInf>* people);//
+	void detectPeople(DepthSensor* sensor, int frame, cv::Mat depth, PXCPoint3DF32* vertices, std::vector<detection>* people);//
 	//void drawResult(const std::string&winname);
 private:
 	int id;

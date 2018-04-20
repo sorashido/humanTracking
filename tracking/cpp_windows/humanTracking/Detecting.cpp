@@ -8,7 +8,7 @@
 
 using namespace labelParam;
 std::vector<cv::Vec3d> bestInliers;
-void Detect::detectPeople(DepthSensor* sensor, int frame, cv::Mat depth, PXCPoint3DF32* vertices, std::vector<personInf>* people)
+void Detect::detectPeople(DepthSensor* sensor, int frame, cv::Mat depth, PXCPoint3DF32* vertices, std::vector<detection>* people)
 {
 	int step = 1;
 
@@ -82,7 +82,7 @@ void Detect::detectPeople(DepthSensor* sensor, int frame, cv::Mat depth, PXCPoin
 		c1.z = r1.cz;
 		sensor->cameraToWorldPoint(&c1, &w1);
 
-		personInf personBuf;
+		detection personBuf;
 		personBuf.wx = w1.x;
 		personBuf.wy = w1.y;
 		personBuf.wz = w1.z;
