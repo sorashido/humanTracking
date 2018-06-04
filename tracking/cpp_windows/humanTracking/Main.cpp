@@ -4,12 +4,14 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <random>
 #include "pxcsensemanager.h"
-#include "Labeling.hpp"
+#include "Detecting.hpp"
+#include "Tracking.hpp"
 #include "DepthSensor.hpp"
 
 using namespace std;
 using namespace cv;
 
+void drawFrame(int* frame);
 int m_x = 0, m_y = 0, m_event = 0;
 void onMouse(int event, int x, int y, int flags, void *param = NULL) {
 	m_event = event;
@@ -17,193 +19,105 @@ void onMouse(int event, int x, int y, int flags, void *param = NULL) {
 	m_y = y;
 }
 
-typedef struct {
-	double x;
-	double y;
-	double z;
-	double wx;
-	double wy;
-	double wz;
-	double width;
-	double height;
-	int num;
-	int frame;
-	int id;
-}personInf;
+cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);
+std::vector<PXCPoint3DF32> vertices;
+
+//std::vector<personInf> people;
+std::vector<detection> detections;
+std::vector<std::vector<detection>> track_data;
+
+const static std::string WINDOWNAME = "Depth";
+
+//#define LOG
+#ifdef LOG
+	ofstream myfile;
+#endif
 
 int main(){
 	DepthSensor sensor(L"D:\\track_data\\No6_out2017-11-03 6-08-56.rssdk");
 
-	Labeling label;
-	cv::Mat depthMat(DEPTH_HEIGHT, DEPTH_WIDTH, CV_16UC1);
-
-	std::vector<personInf> people;//
-	std::vector<std::vector<personInf>> track_data;
-
-	static Point3D cameraPoint, worldPoint;
+	Detect detector;
+	Track tracker;
 
 	// window setting
-	const static std::string WINDOWNAME = "Depth";
 	cv::namedWindow(WINDOWNAME);
 	cv::setMouseCallback(WINDOWNAME, onMouse);
 
-	int view_mode = 0;
-
-	std::random_device rnd;
-
-	ofstream myfile;
+#ifdef LOG
 	myfile.open("../../../data/sample.csv");
 	myfile << "frame" << "," << "id" << "," << "wx" << "," << "wy" << "," << "wz" << "\n";
+#endif
 
-	std::vector<PXCPoint3DF32> vertices;
 	vertices.resize(DEPTH_HEIGHT*DEPTH_WIDTH);
 	
 	// Streaming loop
-	int human_num = 0;
-	for (int i = 6500; i < 200000; i += 1) {
+	bool stop = false;
+	for (int i = 0;; i += 1) {
 		sensor.getFrame(i, &depthMat, &vertices[0]);
 
-		label.labeling(depthMat, &vertices[0]);
+		// detections
+		detections.clear();
+		detector.detectPeople(&sensor, i, depthMat, &vertices[0], &detections);
 
-		Mat trackMat = Mat::zeros(cv::Size(640, 480), CV_8UC3);
-
-		//
-		Point3D c1, c2, w1, w2;
-		//int id = 0;
-		people.clear();
-		std::set<int>isId;
-
-		for (auto r1 : label.results) {
-			c1.x = r1.cx;// vertices[r1.y * 320 + r1.x].x;
-			c1.y = r1.cy;// vertices[r1.y * 320 + r1.x].y;
-			c1.z = r1.cz;
-			sensor.cameraToWorldPoint(&c1, &w1);
-
-			personInf personBuf;
-			personBuf.wx = w1.x;
-			personBuf.wy = w1.y;
-			personBuf.wz = w1.z;
-			personBuf.x = r1.x;
-			personBuf.y = r1.y;
-			personBuf.z = r1.d;
-			personBuf.height = r1.height;
-			personBuf.width = r1.width;
-			personBuf.frame = i;
-			personBuf.id = 0;
-			personBuf.num = 1;
-			for (auto r2 : label.results) {
-				if (r1.id == r2.id)continue;
-				c2.x = r2.cx;
-				c2.y = r2.cy;
-				c2.z = r2.cz;
-				sensor.cameraToWorldPoint(&c2, &w2);
-				if (sqrt(abs(w1.x - w2.x)*abs(w1.x - w2.x)) < 300 && sqrt(abs(w1.z - w2.z)*abs(w1.z - w2.z)) <  300) {
-					personBuf.wx += w2.x;
-					personBuf.wy += w2.y;
-					personBuf.wz += w2.z;
-					personBuf.x += r1.x;
-					personBuf.y += r1.y;
-					personBuf.z += r1.d;
-					personBuf.num += 1;
-					personBuf.height += r2.height;
-					personBuf.width += r2.width;
-					isId.insert(r2.id);
-				}
-			}
-
-			if (isId.find(r1.id) == isId.end() && personBuf.z / 4000 * personBuf.height > 30) {
-				isId.insert(r1.id);
-				personBuf.wx /= personBuf.num;
-				personBuf.wy /= personBuf.num;
-				personBuf.wz /= personBuf.num;
-				personBuf.x /= personBuf.num;
-				personBuf.y /= personBuf.num;
-				personBuf.z /= personBuf.num;
-				people.push_back(personBuf);
-				//id++;
-			}
-		}
-
-		bool isadd = false;
-		std::vector<personInf> tt;
-		for (auto p : people) {
-			for (auto t = track_data.begin(); t != track_data.end(); ++t){
-				personInf tmp = t->back();
-				if (sqrt(abs(tmp.wx - p.wx)*abs(tmp.wx - p.wx)) < 500 && sqrt(abs(tmp.wz - p.wz)*abs(tmp.wz - p.wz)) < 500 && (p.frame - tmp.frame) < 10) {
-					p.id = t->back().id;
-					t->push_back(p);
-					isadd = true;
-				}
-			}
-
-			//for (auto t : track_data) {
-			//	if (i - t.back().frame > 100) {
-			//		t.clear();
-			//	}
-			//}
-
-			if (!isadd) {
-				std::vector<personInf> per;
-				p.id = human_num;
-				human_num += 1;
-				per.push_back(p);
-				track_data.push_back(per);
-			}
-		}
+		// tracking
+		tracker.trackPeople(&detections, &track_data);
 
 		// drawing
-		cv::Mat depthTmp, paintMat;
-		depthMat.convertTo(depthTmp, CV_8U, 255.0f / 8000.0f, 0);
-		cv::cvtColor(depthTmp, paintMat, CV_GRAY2BGR);
-		const static int rate = 2.0;
-		cv::resize(paintMat, paintMat, cv::Size(), rate, rate);
-		
-		// draw frame
-		char str[200];
-		sprintf_s(str, "%4d", i);
-		cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(244, 67, 57), 2, CV_AA);
+		drawFrame(&i);
 
-		sprintf_s(str, "%4d, %4d, %4d", (int)vertices[m_y/rate * 320 + m_x/rate].x, (int)vertices[m_y/rate * 320 + m_x/rate].y, (int)vertices[m_y/rate * 320 + m_x/rate].z);
-		cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(7, 193, 255), 2, CV_AA);
-
-		switch (view_mode) {
-		case 9:
-			// stop
-			i -= 1;
-			break;
-		default:
-			break;
-		}
-
-		int color = 0;
-		for (auto t : track_data) {
-			// draw now frame data
-			personInf now_p = t.back();
-			if (now_p.frame == i) {
-				cv::rectangle(paintMat, Point(now_p.x*rate - now_p.width*rate / 2, now_p.y*rate - now_p.height*rate / 2), Point(now_p.x*rate + now_p.width*rate / 2, now_p.y*rate + now_p.height*rate / 2), Scalar(136, 150, 0), 2);
-				sprintf_s(str, "%4d", (int)now_p.id);
-				cv::putText(paintMat, str, cv::Point(now_p.x*rate, now_p.y*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
-				myfile << now_p.frame << "," << (int)now_p.id << "," << now_p.wx << "," << now_p.wy << "," << now_p.wz << "\n";
-			}
-
-			// draw track data
-			for (auto r : t) {
-				if (i - r.frame < 40) {
-					cv::circle(trackMat, cv::Point(r.x * rate, -r.z * 480 / 4000 + 650), 5, cv::Scalar(color%255, 67, 244));
-				}
-			}
-			color += 30;
-		}
-		cv::imshow("track", trackMat);
-		cv::imshow(WINDOWNAME, paintMat);
 		int key = cv::waitKey(10);
-		if (key >= '0' && key <= '9') view_mode = key - '0';
-		else if (key == 'q') break;
+		if (key == 'q') break;
+		else if (key == 32) stop = !stop;
 
+		if (stop)i -= 1;
 		sensor.frameRelease();
 	}
-	//myfile.close();
-
+#ifdef LOG
+	myfile.close();
+#endif
 	return 0;
 }
 
+void drawFrame(int* frame) {
+	// drawing
+	Mat trackMat = Mat::zeros(cv::Size(640, 480), CV_8UC3);
+	cv::Mat depthTmp, paintMat;
+	depthMat.convertTo(depthTmp, CV_8U, 255.0f / 8000.0f, 0);
+	cv::cvtColor(depthTmp, paintMat, CV_GRAY2BGR);
+	const static int rate = 2.0;
+	cv::resize(paintMat, paintMat, cv::Size(), rate, rate);
+
+	char str[200];
+	sprintf_s(str, "%4d", *frame);
+	cv::putText(paintMat, str, cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(244, 67, 57), 2, CV_AA);
+
+	sprintf_s(str, "%4d, %4d, %4d", (int)vertices[m_y / rate * 320 + m_x / rate].x, (int)vertices[m_y / rate * 320 + m_x / rate].y, (int)vertices[m_y / rate * 320 + m_x / rate].z);
+	cv::putText(paintMat, str, cv::Point(m_x, m_y), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(7, 193, 255), 2, CV_AA);
+
+	const static cv::Scalar color[10] = { cv::Scalar(244, 67, 54), cv::Scalar(63, 81, 181), cv::Scalar(205, 220, 57),
+		cv::Scalar(255, 152, 0), cv::Scalar(121, 85, 72), cv::Scalar(233, 30, 99),
+		cv::Scalar(156, 39, 176), cv::Scalar(33, 150, 243), cv::Scalar(255, 235, 59), cv::Scalar(255, 255, 255) };
+
+	for (auto t : track_data) {
+		// now data
+		detection now_p = t.back();
+		if (now_p.frame == *frame) {
+			cv::rectangle(paintMat, Point(now_p.sx*rate - now_p.width*rate / 2, now_p.sy*rate - now_p.height*rate / 2), Point(now_p.sx*rate + now_p.width*rate / 2, now_p.sy*rate + now_p.height*rate / 2), Scalar(136, 150, 0), 2);
+			sprintf_s(str, "%4d", (int)now_p.id);
+			cv::putText(paintMat, str, cv::Point(now_p.sx*rate, now_p.sy*rate), cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(54, 67, 244), 2, CV_AA);
+#ifdef LOG
+			myfile << now_p.frame << "," << (int)now_p.id << "," << now_p.wx << "," << now_p.wy << "," << now_p.wz << "\n";
+#endif
+		}
+
+		// track data
+		for (auto r : t) {
+			if (*frame - r.frame < 40) {
+				cv::circle(trackMat, cv::Point(r.wx * rate, -r.wz * 480 / 4000 + 650), 5, color[now_p.id % 10]);
+			}
+		}
+	}
+
+	cv::imshow("track", trackMat);
+	cv::imshow(WINDOWNAME, paintMat);
+}

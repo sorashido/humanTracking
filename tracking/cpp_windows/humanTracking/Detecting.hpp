@@ -1,8 +1,8 @@
-#ifndef _LABELING_
-#define _LABELING_
+#ifndef _Detect_
+#define _Detect_
 
 #include <opencv2/core/core.hpp>
-#include "pxcsensemanager.h"
+#include "DepthSensor.hpp"
 
 // parameter
 namespace labelParam {
@@ -22,26 +22,40 @@ namespace labelParam {
 	const char Y[SERCH_NUM] = { -1, -1, -1, 0, 0, 1, 1, 1};
 }
 
+typedef struct {
+	double sx;	// screen
+	double sy;
+	double sz;
+	double wx;	// world
+	double wy;
+	double wz;
+	double width;
+	double height;
+	int num;
+	int frame;
+	int id;
+}detection;
+
 using namespace labelParam;
 
-class Labeling{
+class Detect{
 public:
 	typedef struct{
-		double x;	//screen x
-		double y;	//screen y
-		double d;	//depth
-		double cx;  //camera x
-		double cy;	//camera y
-		double cz;	//camera z
-		double width; //width
-		double height; //height
-		double size;   //size
-		int id;		   //id
+		double sx;	//screen
+		double sy;
+		double sd;
+		double cx;  //camera
+		double cy;
+		double cz;
+		double width;
+		double height;
+		double size;
+		int id;
 	}labelInf;
 
-	std::vector<labelInf> results;//labeling
+	std::vector<labelInf> results;//Detect
 	//std::set<int>isId;
-	void labeling(cv::Mat depth, PXCPoint3DF32* vertices);//
+	void detectPeople(DepthSensor* sensor, int frame, cv::Mat depth, PXCPoint3DF32* vertices, std::vector<detection>* people);//
 	//void drawResult(const std::string&winname);
 private:
 	int id;
