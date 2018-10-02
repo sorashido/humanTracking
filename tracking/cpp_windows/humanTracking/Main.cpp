@@ -28,13 +28,14 @@ std::vector<std::vector<detection>> track_data;
 
 const static std::string WINDOWNAME = "Depth";
 
-//#define LOG
+#define LOG
 #ifdef LOG
 	ofstream myfile;
 #endif
 
 int main(){
-	DepthSensor sensor(L"D:\\track_data\\No6_out2017-11-03 6-08-56.rssdk");
+//	DepthSensor sensor(L"D:\\深度センサ記録\\20171103_Area A休日\\No6_out2017-11-03 5-49-52.rssdk");
+	DepthSensor sensor(L"D:\\深度センサ記録\\20171103_Area A休日\\No3_out2017-11-03 5-46-40.rssdk");
 
 	Detect detector;
 	Track tracker;
@@ -44,7 +45,7 @@ int main(){
 	cv::setMouseCallback(WINDOWNAME, onMouse);
 
 #ifdef LOG
-	myfile.open("../../../data/sample.csv");
+	myfile.open("../../../log/20171103_Area_A/no1.csv");
 	myfile << "frame" << "," << "id" << "," << "wx" << "," << "wy" << "," << "wz" << "\n";
 #endif
 

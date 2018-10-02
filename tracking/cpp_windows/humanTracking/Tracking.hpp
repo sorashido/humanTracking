@@ -9,6 +9,6 @@ public:
 		people_num = 0;
 	}
 	int people_num;
-	void trackPeople(std::vector<personInf>* people, std::vector<std::vector<personInf>>* track_data);
+	void trackPeople(std::vector<detection>* people, std::vector<std::vector<detection>>* track_data);
 private:
 };

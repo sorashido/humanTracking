@@ -119,3 +119,4 @@ cmake-build-debug/
 
 .rssdk
 .bag
+log/
