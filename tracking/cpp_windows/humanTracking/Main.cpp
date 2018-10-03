@@ -2,6 +2,7 @@
 #include <fstream>
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/bgsegm.hpp>
 #include <random>
 #include "pxcsensemanager.h"
 #include "Detecting.hpp"
@@ -28,14 +29,14 @@ std::vector<std::vector<detection>> track_data;
 
 const static std::string WINDOWNAME = "Depth";
 
-#define LOG
+//#define LOG
 #ifdef LOG
 	ofstream myfile;
 #endif
 
 int main(){
 //	DepthSensor sensor(L"D:\\深度センサ記録\\20171103_Area A休日\\No6_out2017-11-03 5-49-52.rssdk");
-	DepthSensor sensor(L"D:\\深度センサ記録\\20171103_Area A休日\\No3_out2017-11-03 5-46-40.rssdk");
+	DepthSensor sensor(L"D:\\深度センサ記録\\20171103_Area A休日\\No6_out2017-11-03 6-08-56.rssdk");
 
 	Detect detector;
 	Track tracker;
@@ -51,10 +52,18 @@ int main(){
 
 	vertices.resize(DEPTH_HEIGHT*DEPTH_WIDTH);
 	
+	cv::Ptr<cv::BackgroundSubtractor> bgfs = cv::bgsegm::createBackgroundSubtractorGSOC();
+
 	// Streaming loop
 	bool stop = false;
 	for (int i = 0;; i += 1) {
 		sensor.getFrame(i, &depthMat, &vertices[0]);
+
+		//cv::Mat foreGroundMask, segm;
+		//bgfs->apply(depthMat, foreGroundMask);
+		//depthMat.convertTo(segm, 0, 0.5);
+		//cv::add(depthMat, cv::Scalar(100, 100, 100), segm, foreGroundMask);
+		//cv::imshow("out", segm);
 
 		// detections
 		detections.clear();
